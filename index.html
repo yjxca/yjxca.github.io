@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study: Legal Services Website | Jia - Web Developer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FAFAFA;
+            --color-surface: #FFFFFF;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-accent: #1E71EB;
+            --color-accent-light: #E8F2FF;
+            --color-border: #E5E5E5;
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-text);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 140px 24px 80px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--color-accent-light);
+            color: var(--color-accent);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 24px;
+            color: var(--color-text);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        /* Meta Info */
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 24px;
+            padding: 32px;
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .meta-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        /* Content Sections */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--color-text);
+        }
+
+        .section p {
+            color: var(--color-text-muted);
+            margin-bottom: 16px;
+        }
+
+        .section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Challenge List */
+        .challenge-list {
+            list-style: none;
+            margin-top: 24px;
+        }
+
+        .challenge-list li {
+            padding: 16px 20px;
+            background: var(--color-surface);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--color-accent);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .challenge-list strong {
+            color: var(--color-text);
+        }
+
+        /* Solution Cards */
+        .solution-grid {
+            display: grid;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .solution-card {
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+        }
+
+        .solution-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .solution-card h3::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--color-accent);
+            border-radius: 50%;
+        }
+
+        .solution-card p {
+            color: var(--color-text-muted);
+            margin-bottom: 16px;
+        }
+
+        .solution-card code {
+            display: block;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'SF Mono', Consolas, monospace;
+            overflow-x: auto;
+        }
+
+        /* Screenshot Gallery */
+        .gallery {
+            margin-top: 48px;
+        }
+
+        .gallery-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--color-text-muted);
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            aspect-ratio: 16/10;
+            background: var(--color-border);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top;
+        }
+
+        .gallery-item.featured {
+            grid-column: span 2;
+            aspect-ratio: 16/9;
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Mobile Gallery */
+        .mobile-gallery {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 8px 0 24px;
+            margin-top: 24px;
+        }
+
+        .mobile-gallery::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .mobile-gallery::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 3px;
+        }
+
+        .mobile-item {
+            flex-shrink: 0;
+            width: 280px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            background: var(--color-surface);
+        }
+
+        .mobile-item img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .tech-tag {
+            padding: 10px 20px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        /* Results */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .result-card {
+            background: var(--color-accent);
+            color: white;
+            padding: 32px;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .result-number {
+            font-family: var(--font-display);
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .result-label {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        /* Learnings */
+        .learning-list {
+            list-style: none;
+            margin-top: 24px;
+        }
+
+        .learning-list li {
+            padding: 20px 24px;
+            background: var(--color-surface);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .learning-list li::before {
+            content: '💡';
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        /* Backend Screenshot */
+        .backend-showcase {
+            margin-top: 32px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .backend-showcase img {
+            width: 100%;
+            height: auto;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            padding: 80px 24px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .cta-section h2 {
+            font-family: var(--font-display);
+            font-size: 36px;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 32px;
+            font-size: 18px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-item.featured {
+                grid-column: span 1;
+            }
+
+            .meta-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Image placeholder style */
+        .img-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">Jia</a>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Projects</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <span class="hero-label">Case Study</span>
+        <h1>Legal Services Website for a Toronto Law Firm</h1>
+        <p class="hero-subtitle">
+            A WordPress development project featuring dynamic ACF-driven templates, 
+            responsive design, and a "single source of truth" content architecture.
+        </p>
+
+        <div class="meta-grid">
+            <div class="meta-item">
+                <div class="meta-label">Client</div>
+                <div class="meta-value">Boutique Law Firm</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Timeline</div>
+                <div class="meta-value">4 Weeks</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Web Developer</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Year</div>
+                <div class="meta-value">2025</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content -->
+    <div class="content">
+        <!-- Challenge Section -->
+        <section class="section" id="challenge">
+            <h2 class="section-title">The Challenge</h2>
+            <p>
+                The client had 14 static HTML pages designed with Tailwind CSS that needed to be 
+                integrated into their existing WordPress site. The pages included legal plan 
+                subscription pages and workflow kit product pages.
+            </p>
+            <ul class="challenge-list">
+                <li><strong>Header Overlap Issue</strong> — The existing theme used a fixed header that overlapped with new page content</li>
+                <li><strong>CSS Conflicts</strong> — Tailwind CSS classes conflicted with the existing Paperstreet theme styles</li>
+                <li><strong>Content Management</strong> — The client wanted to easily update pricing without touching code</li>
+                <li><strong>Maintainability</strong> — 14 separate templates would be difficult to maintain long-term</li>
+            </ul>
+        </section>
+
+        <!-- Solution Section -->
+        <section class="section" id="solution">
+            <h2 class="section-title">My Approach</h2>
+            
+            <div class="solution-grid">
+                <div class="solution-card">
+                    <h3>2 Templates Instead of 14</h3>
+                    <p>
+                        Instead of creating 14 individual templates, I designed 2 reusable templates 
+                        powered by ACF (Advanced Custom Fields). Adding new plans or kits requires 
+                        zero code changes.
+                    </p>
+                </div>
+
+                <div class="solution-card">
+                    <h3>Child Theme Implementation</h3>
+                    <p>
+                        All customizations were built in a child theme to protect code from parent 
+                        theme updates and keep modifications organized.
+                    </p>
+                </div>
+
+                <div class="solution-card">
+                    <h3>Native CSS with BEM Naming</h3>
+                    <p>
+                        Converted Tailwind utility classes to native CSS with BEM naming convention 
+                        to avoid conflicts with the existing theme.
+                    </p>
+                    <code>/* Before: Tailwind */
+&lt;div class="bg-blue-600 text-white p-8"&gt;
+
+/* After: Native CSS with BEM */
+&lt;div class="hero-section hero-section--primary"&gt;</code>
+                </div>
+
+                <div class="solution-card">
+                    <h3>Single Source of Truth Architecture</h3>
+                    <p>
+                        Built a system where pricing data is stored once in ACF fields and 
+                        dynamically pulled into all overview pages. Update once, reflect everywhere.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Desktop Screenshots -->
+        <section class="section" id="desktop">
+            <h2 class="section-title">Desktop Design</h2>
+            <p>
+                The website features a clean, professional design with clear visual hierarchy, 
+                interactive tab navigation, and comprehensive pricing tables.
+            </p>
+
+            <div class="gallery">
+                <div class="gallery-title">Key Screens</div>
+                <div class="gallery-grid">
+                    <div class="gallery-item featured">
+                        <!-- Replace src with your actual screenshot -->
+                        <img src="screenshots/hero-desktop.png" alt="Hero Section">
+                        <div class="gallery-caption">Hero Section — Clean, conversion-focused design</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="screenshots/plans-tabs.png" alt="Plans with Tab Navigation">
+                        <div class="gallery-caption">Interactive Plan Tabs</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="screenshots/pricing-table.png" alt="Pricing Comparison Table">
+                        <div class="gallery-caption">Pricing Comparison Table</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="screenshots/bundle-cards.png" alt="Bundle Package Cards">
+                        <div class="gallery-caption">Bundle Package Cards</div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="screenshots/workflow-kits.png" alt="Workflow Kits Grid">
+                        <div class="gallery-caption">Workflow Kits Grid</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mobile Screenshots -->
+        <section class="section" id="mobile">
+            <h2 class="section-title">Responsive Design</h2>
+            <p>
+                Every component was carefully adapted for mobile devices, ensuring a seamless 
+                experience across all screen sizes.
+            </p>
+
+            <div class="gallery-title" style="margin-top: 32px;">Mobile Views — Scroll to explore →</div>
+            <div class="mobile-gallery">
+                <!-- Replace src with your actual mobile screenshots -->
+                <div class="mobile-item">
+                    <img src="screenshots/mobile-hero.png" alt="Mobile Hero">
+                </div>
+                <div class="mobile-item">
+                    <img src="screenshots/mobile-plans.png" alt="Mobile Plans">
+                </div>
+                <div class="mobile-item">
+                    <img src="screenshots/mobile-pricing.png" alt="Mobile Pricing">
+                </div>
+                <div class="mobile-item">
+                    <img src="screenshots/mobile-bundles.png" alt="Mobile Bundles">
+                </div>
+                <div class="mobile-item">
+                    <img src="screenshots/mobile-kits.png" alt="Mobile Kits">
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Implementation -->
+        <section class="section" id="technical">
+            <h2 class="section-title">Technical Implementation</h2>
+            <p>
+                The backend was designed for easy content management. All pricing data, 
+                plan features, and kit details are managed through custom ACF field groups.
+            </p>
+
+            <div class="backend-showcase">
+                <!-- Replace src with your ACF backend screenshot -->
+                <img src="screenshots/acf-backend.png" alt="ACF Field Group Configuration">
+            </div>
+
+            <div class="tech-grid">
+                <span class="tech-tag">WordPress</span>
+                <span class="tech-tag">PHP</span>
+                <span class="tech-tag">ACF Pro</span>
+                <span class="tech-tag">HTML5</span>
+                <span class="tech-tag">CSS3 / BEM</span>
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">Child Theme</span>
+                <span class="tech-tag">Responsive Design</span>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="section" id="results">
+            <h2 class="section-title">Results</h2>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-number">2</div>
+                    <div class="result-label">Reusable Templates<br>(vs. 14 hardcoded)</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">0</div>
+                    <div class="result-label">Code Changes Needed<br>for New Pages</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">5min</div>
+                    <div class="result-label">To Update<br>All Pricing</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">100%</div>
+                    <div class="result-label">Responsive<br>Coverage</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learnings -->
+        <section class="section" id="learnings">
+            <h2 class="section-title">What I Learned</h2>
+            
+            <ul class="learning-list">
+                <li>
+                    <span><strong>Architecture matters more than code volume</strong> — 2 smart templates 
+                    beat 14 copy-paste templates. Planning the data structure upfront saved hours of work.</span>
+                </li>
+                <li>
+                    <span><strong>Always use a child theme</strong> — This protected all customizations 
+                    from being overwritten by parent theme updates.</span>
+                </li>
+                <li>
+                    <span><strong>Client communication is key</strong> — Regular check-ins and prototype 
+                    validation prevented scope creep and ensured alignment.</span>
+                </li>
+                <li>
+                    <span><strong>Fallback values prevent broken pages</strong> — ACF data might be missing; 
+                    always have sensible defaults in your template code.</span>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Let's Work Together</h2>
+        <p>Looking for a web developer who can bring your vision to life?</p>
+        <div class="cta-buttons">
+            <a href="mailto:jysa2025@gmail.com" class="btn btn-primary">Get in Touch</a>
+            <a href="#" class="btn btn-secondary">View More Projects</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Jia. All rights reserved.</p>
+    </footer>
+</body>
+</html>
