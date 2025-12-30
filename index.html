@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jessica Yang | Web Designer & Developer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FAFAFA;
+            --color-surface: #FFFFFF;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-accent: #1E71EB;
+            --color-accent-light: #E8F2FF;
+            --color-border: #E5E5E5;
+            --color-dark: #0a0a0a;
+            --color-cyan: #00d4ff;
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-text);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 24px 100px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 24px;
+            color: var(--color-text);
+        }
+
+        .hero h1 span {
+            color: var(--color-accent);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        /* Projects Section */
+        .projects {
+            padding: 100px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-label {
+            display: inline-block;
+            background: var(--color-accent-light);
+            color: var(--color-accent);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 4vw, 42px);
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        /* Project Cards */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 32px;
+        }
+
+        .project-card {
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .project-thumbnail {
+            width: 100%;
+            height: 280px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .project-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .project-card:hover .project-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        /* NovaMind dark thumbnail */
+        .project-thumbnail.dark-theme {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .project-thumbnail.dark-theme .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00d4ff;
+            font-family: var(--font-body);
+        }
+
+        .project-thumbnail.dark-theme .tagline {
+            color: #a0a0a0;
+            font-size: 16px;
+        }
+
+        .project-thumbnail.dark-theme .demo-btn {
+            background: #00d4ff;
+            color: #0a0a0a;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Legal Services thumbnail */
+        .project-thumbnail.light-theme {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            padding: 40px;
+        }
+
+        .project-thumbnail.light-theme .logo-text {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .project-thumbnail.light-theme .tagline {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .project-info {
+            padding: 28px;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .project-tag {
+            background: var(--color-bg);
+            color: var(--color-text-muted);
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .project-title {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--color-text);
+        }
+
+        .project-description {
+            color: var(--color-text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-link {
+            color: var(--color-accent);
+            font-weight: 600;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-link::after {
+            content: '→';
+            transition: transform 0.2s;
+        }
+
+        .project-card:hover .project-link::after {
+            transform: translateX(4px);
+        }
+
+        /* About Section */
+        .about {
+            padding: 100px 24px;
+            background: var(--color-surface);
+        }
+
+        .about-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about h2 {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 4vw, 42px);
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--color-text);
+        }
+
+        .about p {
+            color: var(--color-text-muted);
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .skill-tag {
+            background: var(--color-bg);
+            color: var(--color-text);
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid var(--color-border);
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 100px 24px;
+            text-align: center;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+        }
+
+        .contact h2 {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 4vw, 42px);
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .contact p {
+            color: rgba(255,255,255,0.7);
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .contact .btn-primary {
+            background: white;
+            color: var(--color-text);
+        }
+
+        .contact .btn-secondary {
+            border-color: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 14px;
+            background: var(--color-bg);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .footer-links a {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 120px 24px 60px;
+            }
+        }
+
+        @media (max-width: 540px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .project-thumbnail {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">Jessica Yang</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1>Hi, I'm <span>Jessica</span><br>Web Designer & Developer</h1>
+        <p class="hero-subtitle">
+            I create beautiful, functional websites using WordPress, Bricks Builder, and modern web technologies. Based in Oakville, Ontario. Bilingual in English and Mandarin.
+        </p>
+        <div class="hero-buttons">
+            <a href="#projects" class="btn btn-primary">View My Work</a>
+            <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="section-header">
+            <span class="section-label">Portfolio</span>
+            <h2 class="section-title">Featured Projects</h2>
+        </div>
+
+        <div class="projects-grid">
+            <!-- NovaMind AI Project -->
+            <a href="novamind-ai-case-study.html" class="project-card">
+                <div class="project-thumbnail dark-theme">
+                    <span class="logo-text">NovaMind AI</span>
+                    <span class="tagline">AI-Powered Vision Solutions</span>
+                    <span class="demo-btn">Get a Demo</span>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">Bricks Builder</span>
+                        <span class="project-tag">WordPress</span>
+                        <span class="project-tag">Landing Page</span>
+                    </div>
+                    <h3 class="project-title">AI Tech Company Landing Page</h3>
+                    <p class="project-description">
+                        A modern, dark-themed landing page for a fictional AI company featuring gradient effects, service cards, stats section, and professional UI design.
+                    </p>
+                    <span class="project-link">View Case Study</span>
+                </div>
+            </a>
+
+            <!-- Legal Services Project -->
+            <a href="legal-services-case-study.html" class="project-card">
+                <div class="project-thumbnail light-theme">
+                    <span class="logo-text">Legal Services</span>
+                    <span class="tagline">Professional Law Firm Website<br>with Dynamic ACF Templates</span>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">WordPress</span>
+                        <span class="project-tag">ACF Pro</span>
+                        <span class="project-tag">PHP</span>
+                    </div>
+                    <h3 class="project-title">Legal Services Website</h3>
+                    <p class="project-description">
+                        A WordPress development project featuring dynamic ACF-driven templates, responsive design, and a "single source of truth" content architecture.
+                    </p>
+                    <span class="project-link">View Case Study</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="about-inner">
+            <h2>About Me</h2>
+            <p>
+                I'm a Web Designer & Developer specializing in WordPress, custom themes, and responsive design. I built production-ready websites for real clients including a legal subscription platform with 14 custom templates.
+            </p>
+            <p>
+                With 12+ years of analytical experience in banking and 95%+ academic performance in Sheridan College's programming courses, I bring a unique combination of business acumen and technical skills to every project.
+            </p>
+            <div class="skills">
+                <span class="skill-tag">WordPress</span>
+                <span class="skill-tag">Bricks Builder</span>
+                <span class="skill-tag">PHP</span>
+                <span class="skill-tag">ACF Pro</span>
+                <span class="skill-tag">HTML5</span>
+                <span class="skill-tag">CSS3</span>
+                <span class="skill-tag">JavaScript (ES6)</span>
+                <span class="skill-tag">Responsive Design</span>
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">MySQL</span>
+                <span class="skill-tag">Figma</span>
+                <span class="skill-tag">GitHub</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <h2>Let's Work Together</h2>
+        <p>Have a project in mind? I'd love to hear from you.</p>
+        <div class="contact-buttons">
+            <a href="mailto:ccz7292@gmail.com" class="btn btn-primary">Send Email</a>
+            <a href="https://www.linkedin.com/in/jiax-yang" class="btn btn-secondary" target="_blank">LinkedIn</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/yjxca" target="_blank">GitHub</a>
+            <a href="https://www.linkedin.com/in/jiax-yang" target="_blank">LinkedIn</a>
+            <a href="mailto:ccz7292@gmail.com">Email</a>
+        </div>
+        <p>&copy; 2025 Jessica Yang. All rights reserved.</p>
+    </footer>
+</body>
+</html>
