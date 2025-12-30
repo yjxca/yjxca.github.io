@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaMind AI - Case Study | Jia's Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-cyan: #00d4ff;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-white: #ffffff;
+            --text-gray: #a0a0a0;
+            --text-dark: #333333;
+            --bg-light: #faf9f7;
+            --accent-pink: #ffe4e6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--accent-pink) 0%, var(--bg-light) 100%);
+            padding: 4rem 5% 6rem;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .case-study-tag {
+            display: inline-block;
+            background: var(--primary-cyan);
+            color: var(--dark-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .hero-description {
+            font-size: 1.15rem;
+            color: var(--text-gray);
+            max-width: 700px;
+            margin-bottom: 3rem;
+        }
+
+        /* Project Meta */
+        .project-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            max-width: 900px;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Main Content */
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5rem 5%;
+        }
+
+        .section {
+            margin-bottom: 5rem;
+        }
+
+        .section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .section p {
+            color: var(--text-gray);
+            font-size: 1.05rem;
+            max-width: 800px;
+        }
+
+        /* Video Section */
+        .video-section {
+            background: var(--dark-bg);
+            padding: 5rem 5%;
+            margin: 3rem 0;
+        }
+
+        .video-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .video-container h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--text-white);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            display: block;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-cyan), #0099cc);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .tech-tag {
+            background: var(--dark-bg);
+            color: var(--primary-cyan);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Screenshots Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.02);
+        }
+
+        .gallery-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Outcome Section */
+        .outcome-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .outcome-card {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--dark-bg), #1a1a2e);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .outcome-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .outcome-label {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+        }
+
+        /* Back Button */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 3rem;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 0.6;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 5%;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .project-meta {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .outcome-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">Jia</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="index.html#projects">Projects</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="case-study-tag">Case Study</span>
+            <h1>AI Tech Company Landing Page</h1>
+            <p class="hero-description">
+                A modern, visually striking landing page for NovaMind AI, showcasing computer vision and machine learning solutions. Built with Bricks Builder featuring dark theme design, gradient effects, and professional UI components.
+            </p>
+            <div class="project-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Client</div>
+                    <div class="meta-value">Concept Project</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Timeline</div>
+                    <div class="meta-value">1 Day</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Role</div>
+                    <div class="meta-value">Web Designer</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Year</div>
+                    <div class="meta-value">2025</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Demo Section -->
+    <section class="video-section">
+        <div class="video-container">
+            <h2>Project Demo</h2>
+            <div class="video-wrapper">
+                <video controls poster="novamind-poster.jpg">
+                    <source src="AI-Company-Website-Bricks-Demo.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Challenge Section -->
+        <section class="section">
+            <h2>The Challenge</h2>
+            <p>
+                Create a professional, modern landing page for a fictional AI technology company that would effectively communicate complex technical services while maintaining visual appeal and user engagement. The design needed to convey innovation, trustworthiness, and technical expertise.
+            </p>
+        </section>
+
+        <!-- Solution Section -->
+        <section class="section">
+            <h2>The Solution</h2>
+            <p>
+                I designed and built a complete landing page using Bricks Builder for WordPress, featuring a dark theme with cyan accent colors that evoke a high-tech aesthetic. The page includes multiple sections that guide visitors through the company's value proposition.
+            </p>
+        </section>
+
+        <!-- Key Features -->
+        <section class="section">
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Dark Theme Design</h3>
+                    <p>Sophisticated dark color scheme with radial gradient backgrounds creating depth and visual interest.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3>Glow Effects</h3>
+                    <p>Custom box shadows with cyan glow effects on cards and buttons for a futuristic feel.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Stats Section</h3>
+                    <p>Compelling data visualization showcasing key metrics: 100+ clients, 99% satisfaction, 50M+ images processed.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Service Cards</h3>
+                    <p>Three service offerings presented with icons and descriptions: Industrial Vision, Medical Imaging, Smart Automation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💡</div>
+                    <h3>Why Choose Us</h3>
+                    <p>Trust-building section highlighting key differentiators: Fast & Accurate, Easy Integration, Secure & Reliable.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Complete Structure</h3>
+                    <p>Full page layout with Header, Hero, Services, Stats, Why Us, CTA, and Footer sections.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="section">
+            <h2>Technologies Used</h2>
+            <p>This project was built using modern web development tools and techniques:</p>
+            <div class="tech-stack">
+                <span class="tech-tag">Bricks Builder</span>
+                <span class="tech-tag">WordPress</span>
+                <span class="tech-tag">CSS Flexbox</span>
+                <span class="tech-tag">CSS Grid</span>
+                <span class="tech-tag">Custom Gradients</span>
+                <span class="tech-tag">Box Shadows</span>
+                <span class="tech-tag">Responsive Design</span>
+            </div>
+        </section>
+
+        <!-- Outcome -->
+        <section class="section">
+            <h2>Project Highlights</h2>
+            <div class="outcome-grid">
+                <div class="outcome-card">
+                    <div class="outcome-number">7</div>
+                    <div class="outcome-label">Page Sections</div>
+                </div>
+                <div class="outcome-card">
+                    <div class="outcome-number">6</div>
+                    <div class="outcome-label">Feature Cards</div>
+                </div>
+                <div class="outcome-card">
+                    <div class="outcome-number">1</div>
+                    <div class="outcome-label">Day to Complete</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learnings -->
+        <section class="section">
+            <h2>What I Learned</h2>
+            <p>
+                This project deepened my understanding of Bricks Builder's powerful styling capabilities. I gained hands-on experience with Flexbox layouts, CSS gradients, box shadow effects, and creating cohesive dark-themed designs. The project also reinforced best practices for structuring landing pages that effectively communicate value propositions.
+            </p>
+        </section>
+
+        <a href="index.html#projects" class="back-link">
+            ← Back to Projects
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Jia. All rights reserved.</p>
+    </footer>
+</body>
+</html>
