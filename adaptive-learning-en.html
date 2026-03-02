@@ -94,8 +94,111 @@
     font-size: 12px; font-weight: 600; color: white;
   }
 
+  /* ===== SENSOR BAR ===== */
+  .sensor-bar {
+    position: fixed; top: 96px; left: 0; right: 0; z-index: 99;
+    background: var(--ink); padding: 7px 40px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .sensor-label { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 0.12em; text-transform: uppercase; }
+  .sensor-item { display: flex; align-items: center; gap: 7px; }
+  .sensor-dot { width: 7px; height: 7px; border-radius: 50%; background: #444; flex-shrink: 0; transition: background 0.3s; }
+  .sensor-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); animation: sPulse 2s infinite; }
+  .sensor-dot.warning { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+  .sensor-dot.error { background: var(--accent); }
+  @keyframes sPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .sensor-text { font-size: 11px; color: rgba(255,255,255,0.6); }
+  .sensor-value { font-family: 'DM Mono', monospace; font-size: 11px; color: white; }
+  .sensor-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .focus-track { width: 90px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 100px; overflow: hidden; }
+  .focus-fill { height: 100%; border-radius: 100px; background: var(--green); transition: width 0.5s, background 0.5s; }
+  .focus-val { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.7); }
+
+  /* ===== ALERT ===== */
+  .alert-overlay { position: fixed; top:0; left:0; right:0; bottom:0; z-index:999; background: rgba(200,75,49,0.12); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; }
+  .alert-overlay.show { display: flex; animation: aFade 0.3s ease; }
+  @keyframes aFade { from{opacity:0} to{opacity:1} }
+  .alert-box { background: white; border-radius: 20px; padding: 36px 44px; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,0.18); border: 2px solid var(--accent); max-width: 400px; }
+  .alert-icon { font-size: 48px; margin-bottom: 14px; }
+  .alert-title { font-family: 'Noto Serif', serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .alert-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 22px; }
+  .alert-btn { padding: 12px 28px; border-radius: 100px; background: var(--ink); color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
+  .alert-btn:hover { background: var(--accent2); }
+
+  /* Camera */
+  .cam-feed-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 300; width: 176px; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.22); border: 2px solid var(--border); display: none; }
+  .cam-feed-wrap.show { display: block; }
+  .cam-header { background: var(--ink); padding: 6px 10px; display: flex; align-items: center; gap: 6px; }
+  .cam-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: sPulse 1.5s infinite; }
+  .cam-lbl { font-size: 10px; color: rgba(255,255,255,0.5); }
+  #camCanvas { width: 176px; height: 126px; background: #111; display: block; }
+  video#videoEl { display: none; }
+  .cam-footer { padding: 6px 10px; background: var(--ink); }
+  .cam-status-text { font-size: 11px; color: rgba(255,255,255,0.6); }
+  #gazeDot { position: fixed; width: 12px; height: 12px; border-radius: 50%; background: rgba(200,75,49,0.5); border: 2px solid var(--accent); pointer-events: none; z-index: 1000; display: none; transform: translate(-50%,-50%); transition: left 0.06s, top 0.06s; }
+
+  /* Sensor Status Card */
+  .sensor-status-card { background: linear-gradient(135deg, #0f1a2e, #1a2e3a); border-radius: 16px; padding: 24px; color: white; position: relative; overflow: hidden; }
+  .sensor-status-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(42,107,138,0.4), transparent 70%); }
+  .ss-title { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; margin-bottom: 16px; }
+  .ss-items { display: flex; flex-direction: column; gap: 12px; }
+  .ss-item { display: flex; align-items: center; gap: 12px; }
+  .ss-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .ss-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .ss-sub { font-size: 11px; opacity: 0.45; }
+  .ss-badge { padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; margin-left: auto; }
+  .badge-on { background: rgba(58,125,94,0.3); color: #6dbf9a; border: 1px solid rgba(58,125,94,0.4); }
+  .badge-off { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.1); }
+  .ss-btn { margin-top: 20px; width: 100%; padding: 12px; border-radius: 12px; background: var(--accent2); color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
+  .ss-btn:hover { background: #3a8aaa; transform: translateY(-1px); }
+
+  /* Emotion panel */
+  .emotion-panel { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
+  .emotion-title { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .emotion-display { display: flex; align-items: center; gap: 10px; }
+  .emotion-face { font-size: 26px; transition: all 0.5s; }
+  .emotion-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .emotion-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .emotion-bars { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+  .ebar-row { display: flex; align-items: center; gap: 8px; }
+  .ebar-label { font-size: 10px; color: var(--muted); width: 36px; }
+  .ebar-track { flex: 1; height: 4px; background: rgba(0,0,0,0.07); border-radius: 100px; overflow: hidden; }
+  .ebar-fill { height: 100%; border-radius: 100px; transition: width 0.5s; }
+
+  /* Voice quiz */
+  .voice-quiz { background: white; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; }
+  .vq-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .vq-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .vq-title { font-family: 'Noto Serif', serif; font-size: 15px; font-weight: 700; }
+  .vq-badge { margin-left: auto; background: rgba(200,75,49,0.1); color: var(--accent); padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; }
+  .vq-question { font-size: 14px; line-height: 1.8; margin-bottom: 18px; }
+  .voice-area { border: 1.5px dashed var(--border); border-radius: 14px; padding: 20px; text-align: center; transition: all 0.3s; background: var(--surface); }
+  .voice-area.listening { border-color: var(--accent); background: rgba(200,75,49,0.03); animation: listenPulse 1.5s infinite; }
+  @keyframes listenPulse { 0%,100%{border-color:var(--accent)} 50%{border-color:rgba(200,75,49,0.25)} }
+  .voice-btn { width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer; background: var(--ink); color: white; font-size: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; transition: all 0.2s; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .voice-btn:hover { transform: scale(1.06); background: var(--accent2); }
+  .voice-btn.recording { background: var(--accent); animation: recPulse 1s infinite; }
+  @keyframes recPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .voice-hint { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .voice-transcript { font-size: 14px; color: var(--ink); min-height: 36px; line-height: 1.7; padding: 8px; text-align: left; }
+  .waveform { display: flex; align-items: center; justify-content: center; gap: 3px; height: 30px; margin: 6px 0; }
+  .wave-bar { width: 4px; border-radius: 100px; background: var(--accent); opacity: 0.4; transition: height 0.1s; }
+  .voice-result { margin-top: 14px; padding: 14px; border-radius: 12px; font-size: 13px; line-height: 1.7; display: none; }
+  .voice-result.correct { background: rgba(58,125,94,0.08); border-left: 3px solid var(--green); }
+  .voice-result.partial { background: rgba(212,168,67,0.08); border-left: 3px solid var(--gold); }
+
+  /* Emotion timeline */
+  .emotion-timeline { display: flex; flex-direction: column; gap: 10px; }
+  .etl-row { display: flex; align-items: center; gap: 10px; }
+  .etl-time { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; width: 44px; flex-shrink: 0; }
+  .etl-bars { flex: 1; display: flex; gap: 4px; }
+  .etl-seg { height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
+  .seg-focused { background: rgba(58,125,94,0.7); color: white; }
+  .seg-confused { background: rgba(212,168,67,0.7); }
+  .seg-distracted { background: rgba(200,75,49,0.35); }
+
   /* ===== PAGE SYSTEM ===== */
-  .page { display: none; padding-top: 96px; min-height: 100vh; }
+  .page { display: none; padding-top: 128px; min-height: 100vh; }
   .page.active { display: block; animation: fadeIn 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -459,6 +562,25 @@
 </head>
 <body>
 
+<!-- CAMERA & GAZE -->
+<video id="videoEl" autoplay muted playsinline></video>
+<div class="cam-feed-wrap" id="camFeedWrap">
+  <div class="cam-header"><div class="cam-dot"></div><span class="cam-lbl">Live Camera</span></div>
+  <canvas id="camCanvas"></canvas>
+  <div class="cam-footer"><div class="cam-status-text" id="camStatusText">Initializing...</div></div>
+</div>
+<div id="gazeDot"></div>
+
+<!-- ALERT OVERLAY -->
+<div class="alert-overlay" id="alertOverlay">
+  <div class="alert-box">
+    <div class="alert-icon" id="alertIcon">👀</div>
+    <div class="alert-title" id="alertTitle">Attention Check</div>
+    <div class="alert-desc" id="alertDesc">AI detected your gaze has left the screen for over 5 seconds. Click below to return to your lesson.</div>
+    <button class="alert-btn" onclick="dismissAlert()">I'm back — continue!</button>
+  </div>
+</div>
+
 <!-- PORTFOLIO BANNER -->
 <div class="portfolio-banner">
   <div class="banner-left">
@@ -495,6 +617,36 @@
   </div>
 </nav>
 
+<!-- SENSOR BAR -->
+<div class="sensor-bar">
+  <span class="sensor-label">AI Sensing</span>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-cam"></div>
+    <span class="sensor-text">Camera</span>
+    <span class="sensor-value" id="val-cam">Off</span>
+  </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-mic"></div>
+    <span class="sensor-text">Microphone</span>
+    <span class="sensor-value" id="val-mic">Off</span>
+  </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-gaze"></div>
+    <span class="sensor-text">Eye Tracking</span>
+    <span class="sensor-value" id="val-gaze">Off</span>
+  </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-emotion"></div>
+    <span class="sensor-text">Emotion</span>
+    <span class="sensor-value" id="val-emotion">—</span>
+  </div>
+  <div class="sensor-right">
+    <span class="sensor-text">Focus</span>
+    <div class="focus-track"><div class="focus-fill" id="focusFill" style="width:0%"></div></div>
+    <span class="focus-val" id="focusVal">—</span>
+  </div>
+</div>
+
 <!-- ========== PAGE 1: DASHBOARD ========== -->
 <div class="page active" id="page-home">
   <div class="home-hero">
@@ -515,17 +667,35 @@
         <div class="goal-meta"><span>45 min studied</span><span>~28 min remaining</span></div>
       </div>
     </div>
-    <div class="ai-insight">
-      <div class="ai-tag"><div class="ai-dot"></div>AI Personalized Insight</div>
-      <div class="ai-insight-text">
-        Based on your past 7 days of data, you grasp <strong>visual content</strong> 34% faster than text-only material. Today's session has been enriched with diagrams and animations to help you unlock genetics concepts.
+    <div class="sensor-status-card">
+      <div class="ss-title">🤖 AI Sensing System</div>
+      <div class="ss-items">
+        <div class="ss-item">
+          <div class="ss-icon">📹</div>
+          <div>
+            <div class="ss-name">Facial Expression</div>
+            <div class="ss-sub">Detects focus, confusion & fatigue</div>
+          </div>
+          <span class="ss-badge badge-off" id="cam-badge">Off</span>
+        </div>
+        <div class="ss-item">
+          <div class="ss-icon">🎤</div>
+          <div>
+            <div class="ss-name">Voice Answer</div>
+            <div class="ss-sub">Speech recognition + AI grading</div>
+          </div>
+          <span class="ss-badge badge-off" id="mic-badge">Off</span>
+        </div>
+        <div class="ss-item">
+          <div class="ss-icon">👀</div>
+          <div>
+            <div class="ss-name">Eye Tracking</div>
+            <div class="ss-sub">Detects distraction & alerts you</div>
+          </div>
+          <span class="ss-badge badge-off" id="gaze-badge">Off</span>
+        </div>
       </div>
-      <div style="margin-top:16px;font-size:12px;color:var(--muted)">Focus areas recommended by AI:</div>
-      <div class="ai-chips">
-        <span class="chip chip-red">Base Pairing Rules</span>
-        <span class="chip chip-blue">Anti-parallel Strands</span>
-        <span class="chip chip-green">Hydrogen Bond Count</span>
-      </div>
+      <button class="ss-btn" onclick="startAllSensors()">🚀 Activate AI Sensing System</button>
     </div>
   </div>
 
@@ -726,6 +896,24 @@
       </div>
 
       <div class="content-block">
+        <div class="voice-quiz">
+          <div class="vq-header">
+            <div class="vq-icon">🎤</div>
+            <div class="vq-title">Voice Answer · AI Real-time Grading</div>
+            <span class="vq-badge">🤖 Speech AI</span>
+          </div>
+          <div class="vq-question">Answer out loud: How many hydrogen bonds exist between A-T base pairs? What about G-C? Why are they different?</div>
+          <div class="voice-area" id="voiceArea">
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+            <div class="voice-hint" id="voiceHint">Click the mic to start your voice answer</div>
+            <div class="waveform" id="waveform"></div>
+            <div class="voice-transcript" id="transcript"></div>
+          </div>
+          <div class="voice-result" id="voiceResult"></div>
+        </div>
+      </div>
+
+      <div class="content-block">
         <div class="quiz-block">
           <div class="quiz-header">
             <div class="quiz-icon">🧩</div>
@@ -753,7 +941,25 @@
           <div class="tutor-status"><div class="status-dot"></div>Online — ready to help</div>
         </div>
       </div>
-      <div class="ai-messages">
+
+      <!-- Emotion Display -->
+      <div class="emotion-panel">
+        <div class="emotion-title">📹 Real-time Learning State</div>
+        <div class="emotion-display">
+          <div class="emotion-face" id="emotionFace">😐</div>
+          <div>
+            <div class="emotion-name" id="emotionName">Awaiting Detection</div>
+            <div class="emotion-desc" id="emotionDesc">Activate AI Sensing to begin monitoring</div>
+          </div>
+        </div>
+        <div class="emotion-bars">
+          <div class="ebar-row"><div class="ebar-label">Focus</div><div class="ebar-track"><div class="ebar-fill" id="bar-focused" style="width:0%;background:var(--green)"></div></div></div>
+          <div class="ebar-row"><div class="ebar-label">Confused</div><div class="ebar-track"><div class="ebar-fill" id="bar-confused" style="width:0%;background:var(--gold)"></div></div></div>
+          <div class="ebar-row"><div class="ebar-label">Tired</div><div class="ebar-track"><div class="ebar-fill" id="bar-tired" style="width:0%;background:var(--accent)"></div></div></div>
+        </div>
+      </div>
+
+      <div class="ai-messages" id="aiMessages">
         <div class="msg msg-ai">
           <div class="msg-bubble">Hey Alex! Today we're tackling DNA structure. Based on your history, you made errors on hydrogen bond counts last time — I'll make sure we nail that concept today. 💪</div>
           <div class="msg-time">2:32 PM</div>
@@ -836,6 +1042,21 @@
             <text x="-78" y="48" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Sora,sans-serif">History 62%</text>
             <text x="-78" y="-44" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Sora,sans-serif">CS 70%</text>
           </svg>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="card-title">📹 Today's Focus Timeline</div>
+        <div class="emotion-timeline">
+          <div class="etl-row"><div class="etl-time">2:00 PM</div><div class="etl-bars"><div class="etl-seg seg-focused" style="flex:3">Focused</div><div class="etl-seg seg-confused" style="flex:1">Confused</div><div class="etl-seg seg-focused" style="flex:2">Focused</div></div></div>
+          <div class="etl-row"><div class="etl-time">2:30 PM</div><div class="etl-bars"><div class="etl-seg seg-focused" style="flex:2">Focused</div><div class="etl-seg seg-distracted" style="flex:1">Off-task</div><div class="etl-seg seg-focused" style="flex:3">Focused</div></div></div>
+          <div class="etl-row"><div class="etl-time">3:00 PM</div><div class="etl-bars"><div class="etl-seg seg-confused" style="flex:2">Confused</div><div class="etl-seg seg-focused" style="flex:4">Focused</div></div></div>
+          <div class="etl-row"><div class="etl-time">3:30 PM</div><div class="etl-bars"><div class="etl-seg seg-focused" style="flex:5">Focused</div><div class="etl-seg seg-distracted" style="flex:1">Off-task</div></div></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(58,125,94,0.7)"></div>Focused</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(212,168,67,0.7)"></div>Confused</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(200,75,49,0.35)"></div>Off-task</div>
         </div>
       </div>
 
@@ -943,19 +1164,269 @@
 </div>
 
 <script>
-  function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    const idx = ['home','learn','report'].indexOf(id);
-    document.querySelectorAll('.nav-tab')[idx].classList.add('active');
-  }
+// ===== PAGE NAV =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const idx = ['home','learn','report'].indexOf(id);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+}
+function selectOpt(el, type) {
+  document.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  el.classList.add(type);
+  document.getElementById('quiz-feedback').style.display = 'block';
+}
 
-  function selectOpt(el, type) {
-    document.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
-    el.classList.add(type);
-    document.getElementById('quiz-feedback').style.display = 'block';
+// ===== SENSOR SYSTEM =====
+let camActive = false, micActive = false, gazeActive = false;
+let emotionInterval = null, gazeInterval = null, distractionTimer = null;
+let recognition = null, isRecording = false, focusLevel = 0, waveInterval;
+
+const emotions = [
+  { name:'Focused', face:'😊', desc:'Great state — keep it up!', focused:85, confused:10, tired:5 },
+  { name:'Confused', face:'🤔', desc:'AI detected confusion — switching to simpler explanation', focused:30, confused:65, tired:5 },
+  { name:'Tired', face:'😴', desc:'Fatigue detected — a 5-min break is recommended', focused:20, confused:20, tired:60 },
+  { name:'Deep Focus', face:'🧐', desc:'High concentration detected — great learning state!', focused:92, confused:5, tired:3 },
+];
+
+async function startAllSensors() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    const video = document.getElementById('videoEl');
+    video.srcObject = stream;
+    camActive = true;
+    document.getElementById('camFeedWrap').classList.add('show');
+    const canvas = document.getElementById('camCanvas');
+    const ctx = canvas.getContext('2d');
+    function drawCam() {
+      if (!camActive) return;
+      ctx.drawImage(video, 0, 0, 176, 126);
+      ctx.strokeStyle = 'rgba(58,125,94,0.85)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(48, 14, 80, 96);
+      ctx.fillStyle = 'rgba(58,125,94,0.85)';
+      ctx.font = '9px monospace';
+      ctx.fillText('FACE DETECTED', 52, 11);
+      requestAnimationFrame(drawCam);
+    }
+    drawCam();
+    updateSensor('cam', 'active', 'Active');
+    updateBadge('cam-badge', true);
+    await startMicrophone();
+    startEmotionDetection();
+    startGazeTracking();
+    finalizeLaunch();
+  } catch(e) {
+    startSimulationMode();
   }
+}
+
+function startSimulationMode() {
+  camActive = true; micActive = true; gazeActive = true;
+  ['cam','mic','gaze'].forEach(id => { updateSensor(id, 'active', 'Simulated'); updateBadge(id+'-badge', true); });
+  document.getElementById('camFeedWrap').classList.add('show');
+  const canvas = document.getElementById('camCanvas');
+  const ctx = canvas.getContext('2d');
+  function drawSim() {
+    if (!camActive) return;
+    ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0,0,176,126);
+    ctx.fillStyle = 'rgba(42,107,138,0.3)';
+    ctx.beginPath(); ctx.ellipse(88,63,38,48,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(58,125,94,0.85)'; ctx.lineWidth = 2;
+    ctx.strokeRect(50,14,76,98);
+    ctx.fillStyle = 'rgba(58,125,94,0.85)'; ctx.font = '9px monospace';
+    ctx.fillText('FACE DETECTED', 52,11);
+    requestAnimationFrame(drawSim);
+  }
+  drawSim();
+  startEmotionDetection();
+  startGazeTracking();
+  finalizeLaunch();
+  addAIMessage('Running in Simulation Mode (browser permissions not granted). All AI sensing features will use demo data. For the full experience, grant camera & mic access.');
+}
+
+async function startMicrophone() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+  }
+  micActive = true;
+  updateSensor('mic', 'active', 'Ready');
+  updateBadge('mic-badge', true);
+}
+
+function startEmotionDetection() {
+  let idx = 0;
+  emotionInterval = setInterval(() => {
+    const em = emotions[idx % emotions.length];
+    updateEmotion(em); idx++;
+    if (Math.random() < 0.2) {
+      updateEmotion(emotions[1]);
+      addAIMessage('😕 Confusion detected! Let me try a different angle: think of DNA base pairs like puzzle pieces — A-T has 2 locking tabs, G-C has 3. The shape literally determines the bond count!');
+    }
+    updateSensor('gaze', Math.random() < 0.15 ? 'warning' : 'active', Math.random() < 0.15 ? 'Drifting' : 'On screen');
+  }, 8000);
+}
+
+function startGazeTracking() {
+  gazeActive = true;
+  updateSensor('gaze', 'active', 'Tracking');
+  updateBadge('gaze-badge', true);
+  const dot = document.getElementById('gazeDot');
+  dot.style.display = 'block';
+  gazeInterval = setInterval(() => {
+    const x = 100 + Math.random() * (window.innerWidth - 200);
+    const y = 130 + Math.random() * (window.innerHeight - 200);
+    dot.style.left = x + 'px'; dot.style.top = y + 'px';
+    const distracted = x < 120 || x > window.innerWidth - 120;
+    focusLevel = distracted ? Math.max(0, focusLevel - 4) : Math.min(100, focusLevel + 3);
+    const ff = document.getElementById('focusFill');
+    ff.style.width = focusLevel + '%';
+    ff.style.background = focusLevel > 60 ? 'var(--green)' : focusLevel > 30 ? 'var(--gold)' : 'var(--accent)';
+    document.getElementById('focusVal').textContent = focusLevel + '%';
+    if (distracted) {
+      clearTimeout(distractionTimer);
+      distractionTimer = setTimeout(() => showAlert('Attention Check 👀', '🧭', 'AI detected your gaze has drifted from the screen for over 5 seconds. Click below to return to your lesson.'), 5000);
+    } else {
+      clearTimeout(distractionTimer);
+    }
+  }, 500);
+}
+
+function finalizeLaunch() {
+  const btn = document.querySelector('.ss-btn');
+  btn.textContent = '✅ AI Sensing System Active';
+  btn.style.background = 'var(--green)';
+  addAIMessage('🎉 AI Sensing System activated! Camera, microphone, and eye tracking are all live. I\'ll adapt your lesson in real time based on your focus and emotion state.');
+}
+
+function updateEmotion(em) {
+  document.getElementById('emotionFace').textContent = em.face;
+  document.getElementById('emotionName').textContent = em.name;
+  document.getElementById('emotionDesc').textContent = em.desc;
+  document.getElementById('bar-focused').style.width = em.focused + '%';
+  document.getElementById('bar-confused').style.width = em.confused + '%';
+  document.getElementById('bar-tired').style.width = em.tired + '%';
+  document.getElementById('val-emotion').textContent = em.name;
+  document.getElementById('camStatusText').textContent = em.face + ' ' + em.name;
+  const dot = document.getElementById('dot-emotion');
+  dot.className = 'sensor-dot';
+  dot.classList.add(em.name === 'Focused' || em.name === 'Deep Focus' ? 'active' : em.name === 'Confused' ? 'warning' : 'error');
+  if (em.name === 'Tired') showAlert('Break Reminder 😴', '😴', 'Fatigue detected — you\'ve been studying hard! A 5-minute break will help you retain more. Come back refreshed!');
+}
+
+function updateSensor(id, state, text) {
+  const dot = document.getElementById('dot-' + id);
+  const val = document.getElementById('val-' + id);
+  dot.className = 'sensor-dot';
+  if (state) dot.classList.add(state);
+  if (val) val.textContent = text;
+}
+
+function updateBadge(id, on) {
+  const el = document.getElementById(id);
+  el.textContent = on ? 'Active' : 'Off';
+  el.className = 'ss-badge ' + (on ? 'badge-on' : 'badge-off');
+}
+
+function showAlert(title, icon, desc) {
+  document.getElementById('alertTitle').textContent = title;
+  document.getElementById('alertIcon').textContent = icon;
+  document.getElementById('alertDesc').textContent = desc;
+  document.getElementById('alertOverlay').classList.add('show');
+}
+function dismissAlert() {
+  document.getElementById('alertOverlay').classList.remove('show');
+  addAIMessage('👏 Welcome back! Let\'s pick up where we left off. Which part would you like to revisit?');
+}
+
+// ===== VOICE QUIZ =====
+function toggleVoice() { isRecording ? stopVoice() : startVoice(); }
+
+function startVoice() {
+  isRecording = true;
+  document.getElementById('voiceBtn').textContent = '⏹';
+  document.getElementById('voiceBtn').classList.add('recording');
+  document.getElementById('voiceArea').classList.add('listening');
+  document.getElementById('voiceHint').textContent = 'Listening... answer the question out loud';
+  document.getElementById('transcript').textContent = '';
+  startWaveform();
+  if (recognition) {
+    recognition.onresult = e => { document.getElementById('transcript').textContent = Array.from(e.results).map(r => r[0].transcript).join(''); };
+    recognition.onend = () => { if (isRecording) gradeAnswer(); };
+    recognition.start();
+    setTimeout(() => { if (isRecording) recognition.stop(); }, 10000);
+  } else {
+    setTimeout(() => {
+      document.getElementById('transcript').textContent = 'A-T has two hydrogen bonds and G-C has three. The difference is due to their molecular structure and the number of possible bonding sites.';
+      stopVoice();
+    }, 3500);
+  }
+}
+
+function stopVoice() {
+  isRecording = false;
+  document.getElementById('voiceBtn').textContent = '🎤';
+  document.getElementById('voiceBtn').classList.remove('recording');
+  document.getElementById('voiceArea').classList.remove('listening');
+  stopWaveform();
+  gradeAnswer();
+}
+
+function gradeAnswer() {
+  const text = document.getElementById('transcript').textContent.toLowerCase();
+  const result = document.getElementById('voiceResult');
+  result.style.display = 'block';
+  if ((text.includes('two') || text.includes('2')) && (text.includes('three') || text.includes('3'))) {
+    result.className = 'voice-result correct';
+    result.innerHTML = '✅ <strong>Excellent!</strong> You correctly identified A-T = 2 hydrogen bonds and G-C = 3. Your verbal explanation has been recorded. Score: ⭐⭐⭐';
+    addAIMessage('🎉 Perfect voice answer! You clearly articulated both bond counts. This has been logged in your progress report under "Voice Quiz Performance".');
+  } else if (text.length > 5) {
+    result.className = 'voice-result partial';
+    result.innerHTML = '💛 <strong>Partially correct</strong> — your answer: "' + document.getElementById('transcript').textContent + '"<br>Tip: Be specific about the numbers — A-T = 2 bonds, G-C = 3 bonds.';
+    addAIMessage('Good attempt! Just remember the key numbers: A-T forms 2 hydrogen bonds, G-C forms 3. Try again?');
+  } else {
+    result.className = 'voice-result partial';
+    result.innerHTML = '💛 No complete answer detected. Please try speaking more clearly or click the mic again.';
+  }
+  document.getElementById('voiceHint').textContent = 'Click the mic to try again';
+}
+
+function startWaveform() {
+  const wf = document.getElementById('waveform');
+  wf.innerHTML = '';
+  for (let i = 0; i < 16; i++) {
+    const b = document.createElement('div');
+    b.className = 'wave-bar'; b.style.height = '4px'; wf.appendChild(b);
+  }
+  waveInterval = setInterval(() => {
+    wf.querySelectorAll('.wave-bar').forEach(b => {
+      b.style.height = (4 + Math.random() * 26) + 'px';
+      b.style.opacity = 0.4 + Math.random() * 0.6;
+    });
+  }, 100);
+}
+
+function stopWaveform() {
+  clearInterval(waveInterval);
+  document.getElementById('waveform').querySelectorAll('.wave-bar').forEach(b => b.style.height = '4px');
+}
+
+function addAIMessage(text) {
+  const msgs = document.getElementById('aiMessages');
+  if (!msgs) return;
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + (now.getHours() < 12 ? ' AM' : ' PM');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">${time}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
 </script>
 </body>
 </html>
