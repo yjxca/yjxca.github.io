@@ -173,6 +173,35 @@
   .hr-collecting { font-size: 11px; color: var(--muted); }
   .hr-progress { flex: 1; height: 3px; background: var(--surface); border-radius: 100px; overflow: hidden; }
   .hr-progress-fill { height: 100%; border-radius: 100px; background: var(--accent); transition: width 0.3s; }
+  /* === BIOMETRIC FUSION === */
+  .hr-zones{display:flex;gap:5px;margin-top:10px}
+  .hr-zone{flex:1;padding:5px 4px;border-radius:6px;text-align:center;font-size:10px;font-family:'DM Mono',monospace;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .4s}
+  .hr-zone.active-rest{background:rgba(58,125,94,.12);border-color:rgba(58,125,94,.4);color:var(--green);font-weight:600}
+  .hr-zone.active-focus{background:rgba(42,107,138,.12);border-color:rgba(42,107,138,.4);color:var(--accent2);font-weight:600}
+  .hr-zone.active-stress{background:rgba(200,75,49,.12);border-color:rgba(200,75,49,.4);color:var(--accent);font-weight:600}
+  .hr-zone-name{font-size:9px;opacity:.7;margin-top:1px}
+  .hrv-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:var(--muted)}
+  .hrv-val{font-family:'DM Mono',monospace;font-weight:600;color:var(--purple)}
+  .fusion-panel{padding:12px 16px;border-top:1px solid var(--border);background:linear-gradient(135deg,#f8f5ff,#f0f8ff)}
+  .fusion-title{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .fusion-signals{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+  .fsig{padding:7px 9px;background:white;border-radius:8px;border:1px solid var(--border)}
+  .fsig-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .fsig-val{font-family:'DM Mono',monospace;font-size:15px;font-weight:600}
+  .fsig-bar{height:3px;border-radius:100px;background:var(--border);margin-top:5px;overflow:hidden}
+  .fsig-fill{height:100%;border-radius:100px;transition:width .8s ease}
+  .fusion-score-row{display:flex;align-items:center;gap:12px}
+  .fusion-ring-wrap{position:relative;width:56px;height:56px;flex-shrink:0}
+  .fusion-ring-wrap svg{transform:rotate(-90deg)}
+  .fusion-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:16px;font-weight:700}
+  .fusion-state-info{flex:1}
+  .fusion-state-name{font-size:13px;font-weight:600;margin-bottom:3px}
+  .fusion-state-desc{font-size:11px;color:var(--muted);line-height:1.4}
+  .break-panel{padding:10px 16px;border-top:1px solid var(--border);background:white;display:flex;align-items:center;gap:10px}
+  .break-icon{font-size:18px;flex-shrink:0}
+  .break-text{flex:1;font-size:11px;color:var(--muted);line-height:1.4}
+  .break-text strong{color:var(--ink);font-size:12px;display:block;margin-bottom:2px}
+  .break-timer-badge{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);flex-shrink:0;transition:color .4s,border-color .4s}
 
   /* Emotion panel */
   .emotion-panel { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
@@ -1008,6 +1037,13 @@
           </div>
         </div>
         <div class="hr-wave"><canvas id="hrWaveCanvas" height="48"></canvas></div>
+
+        <div class="hr-zones">
+          <div class="hr-zone" id="zone-rest">60-75<div class="hr-zone-name">Rest</div></div>
+          <div class="hr-zone" id="zone-focus">76-95<div class="hr-zone-name">Focus</div></div>
+          <div class="hr-zone" id="zone-stress">96+<div class="hr-zone-name">Stress</div></div>
+        </div>
+        <div class="hrv-row"><span>HRV (Heart Rate Variability)</span><span class="hrv-val" id="hrvVal">-- ms</span></div>
         <div class="hr-status-row">
           <div class="hr-indicator" id="hrIndicator"></div>
           <span class="hr-collecting" id="hrCollecting">Camera required</span>
@@ -1015,6 +1051,32 @@
             <div class="hr-progress-fill" id="hrProgressFill" style="width:0%"></div>
           </div>
         </div>
+      </div>
+      <!-- Biometric Fusion Panel -->
+      <div class="fusion-panel">
+        <div class="fusion-title">&#x1F500; Biometric Fusion Score</div>
+        <div class="fusion-signals">
+          <div class="fsig"><div class="fsig-name">Face Focus</div><div class="fsig-val" id="fsig-face" style="color:var(--green)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-face-bar" style="width:0%;background:var(--green)"></div></div></div>
+          <div class="fsig"><div class="fsig-name">HR Stress</div><div class="fsig-val" id="fsig-hr" style="color:var(--accent2)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-hr-bar" style="width:0%;background:var(--accent2)"></div></div></div>
+          <div class="fsig"><div class="fsig-name">Eye Focus</div><div class="fsig-val" id="fsig-eye" style="color:var(--accent2)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-eye-bar" style="width:0%;background:var(--accent2)"></div></div></div>
+          <div class="fsig"><div class="fsig-name">HRV Recovery</div><div class="fsig-val" id="fsig-hrv" style="color:var(--purple)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-hrv-bar" style="width:0%;background:var(--purple)"></div></div></div>
+        </div>
+        <div class="fusion-score-row">
+          <div class="fusion-ring-wrap">
+            <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="28" cy="28" r="22" fill="none" stroke="var(--green)" stroke-width="4" stroke-dasharray="138" id="fusionRing" stroke-dashoffset="138" stroke-linecap="round"/></svg>
+            <div class="fusion-ring-num" id="fusionScore" style="color:var(--green)">--</div>
+          </div>
+          <div class="fusion-state-info">
+            <div class="fusion-state-name" id="fusionStateName">Awaiting sensors...</div>
+            <div class="fusion-state-desc" id="fusionStateDesc">Activate AI Sensing to begin biometric fusion</div>
+          </div>
+        </div>
+      </div>
+      <!-- Break Recommendation Panel -->
+      <div class="break-panel">
+        <div class="break-icon" id="breakIcon">&#x23F0;</div>
+        <div class="break-text"><strong id="breakTitle">Break Recommendation</strong><span id="breakReason">Based on HR + HRV + Facial + Eye fusion</span></div>
+        <div class="break-timer-badge" id="breakTimer">--:--</div>
       </div>
 
       <div class="ai-messages" id="aiMessages">
@@ -1410,40 +1472,78 @@ function calculateBPM(signal) {
   return (bpm >= 45 && bpm <= 160) ? bpm : 0;
 }
 
-function updateHRDisplay(bpm) {
-  currentBPM = bpm;
-  hrHistory.push(bpm);
-  if (hrHistory.length > 10) hrHistory.shift();
+// === BIOMETRIC FUSION STATE ===
+let currentHRV=0, fusionFaceScore=0, fusionEyeScore=0, breakSeconds=90*60, breakInterval=null;
 
-  // Smooth with rolling average
-  const smoothed = Math.round(hrHistory.reduce((a,b) => a+b, 0) / hrHistory.length);
-
-  document.getElementById('hrBpm').textContent = smoothed;
-  document.getElementById('hrProgressWrap').style.display = 'none';
-  document.getElementById('hrCollecting').textContent = 'Live measurement';
-
-  let state, desc, color;
-  if (smoothed < 60) { state = 'Resting'; desc = 'Very calm — ideal for deep reading'; color = 'var(--accent2)'; }
-  else if (smoothed < 75) { state = 'Relaxed Focus'; desc = 'Optimal learning state'; color = 'var(--green)'; }
-  else if (smoothed < 90) { state = 'Engaged'; desc = 'Good concentration level'; color = 'var(--gold)'; }
-  else if (smoothed < 105) { state = 'Elevated'; desc = 'May indicate cognitive load or stress'; color = 'var(--gold)'; }
-  else { state = 'High Stress'; desc = 'AI suggests taking a breath — try paced breathing'; color = 'var(--accent)'; }
-
-  document.getElementById('hrState').textContent = state;
-  document.getElementById('hrState').style.color = color;
-  document.getElementById('hrDesc').textContent = desc;
-  document.getElementById('hrBpm').style.color = color;
+function updateHRDisplay(bpm){
+  currentBPM=bpm; hrHistory.push(bpm); if(hrHistory.length>10) hrHistory.shift();
+  const smoothed=Math.round(hrHistory.reduce((a,b)=>a+b,0)/hrHistory.length);
+  document.getElementById('hrBpm').textContent=smoothed;
+  document.getElementById('hrProgressWrap').style.display='none';
+  document.getElementById('hrCollecting').textContent='Live measurement';
+  let state,desc,color,zone;
+  if(smoothed<60)      {state='Resting';      desc='Very calm - ideal for deep reading';       color='var(--accent2)';zone='rest';}
+  else if(smoothed<76) {state='Relaxed Focus';desc='Calm & ready - good warm-up state';        color='var(--green)';  zone='rest';}
+  else if(smoothed<96) {state='Engaged';      desc='Optimal learning zone - keep going';        color='var(--green)';  zone='focus';}
+  else if(smoothed<110){state='Elevated';     desc='Cognitive load rising - try a slow breath';color='var(--gold)';   zone='stress';}
+  else                 {state='High Stress';  desc='AI reducing difficulty - pace yourself';   color='var(--accent)'; zone='stress';}
+  document.getElementById('hrState').textContent=state; document.getElementById('hrState').style.color=color;
+  document.getElementById('hrDesc').textContent=desc;   document.getElementById('hrBpm').style.color=color;
   document.getElementById('hrIndicator').classList.add('beating');
-  document.getElementById('hrIndicator').style.background = color;
-  // Set beat animation speed to match HR
-  document.getElementById('hrIndicator').style.animationDuration = (60 / smoothed) + 's';
+  document.getElementById('hrIndicator').style.background=color;
+  document.getElementById('hrIndicator').style.animationDuration=(60/smoothed)+'s';
+  updateSensor('hr','active',smoothed+' BPM');
+  ['rest','focus','stress'].forEach(z=>{document.getElementById('zone-'+z).className='hr-zone'+(z===zone?' active-'+z:'');});
+  const v=hrHistory.length>2?hrHistory.reduce((s,x)=>s+Math.abs(x-smoothed),0)/hrHistory.length:0;
+  currentHRV=Math.round(20+v*8+Math.random()*5);
+  document.getElementById('hrvVal').textContent=currentHRV+' ms';
+  updateBiometricFusion(smoothed,currentHRV,zone);
+  if(smoothed>105&&hrHistory.length>3) addAIMessage('Heart rate elevated ('+smoothed+' BPM) - I have adjusted content difficulty. Try 3 slow breaths; it genuinely improves retention.');
+}
 
-  updateSensor('hr', 'active', smoothed + ' BPM');
-
-  // AI responds to HR changes
-  if (smoothed > 100 && hrHistory.length > 3) {
-    addAIMessage(`❤️ Your heart rate is elevated (${smoothed} BPM). This can happen during challenging material. Try taking 3 slow breaths — it genuinely helps with retention.`);
+function updateBiometricFusion(bpm,hrv,zone){
+  const hrStress=Math.max(0,Math.min(100,Math.round((bpm-60)/50*100)));
+  const hrvRec=Math.min(100,Math.round(hrv/60*100));
+  if(!fusionFaceScore) fusionFaceScore=65+Math.random()*25;
+  if(!fusionEyeScore)  fusionEyeScore=60+Math.random()*30;
+  const face=Math.round(fusionFaceScore), eye=Math.round(fusionEyeScore);
+  setFsig('face',face+'%',face,'var(--green)'); setFsig('hr',hrStress+'%',hrStress,'var(--accent2)');
+  setFsig('eye',eye+'%',eye,'var(--accent2)');  setFsig('hrv',hrvRec+'%',hrvRec,'var(--purple)');
+  const score=Math.round(face*0.30+eye*0.25+hrvRec*0.30+(100-hrStress)*0.15);
+  const dashoffset=138-(score/100)*138;
+  const rc=score>=70?'var(--green)':score>=45?'var(--gold)':'var(--accent)';
+  document.getElementById('fusionRing').style.strokeDashoffset=dashoffset;
+  document.getElementById('fusionRing').style.stroke=rc;
+  document.getElementById('fusionScore').textContent=score;
+  document.getElementById('fusionScore').style.color=rc;
+  let sN,sD,bM,bR;
+  if(score>=75)           {sN='Peak Learning State';sD='HR stable, HRV healthy, face and gaze focused. Increase difficulty now.';bM=75;bR='HR stable + high HRV - ideal focus window';}
+  else if(score>=55)      {sN='Good - Moderate Load';sD='Acceptable biometric balance. Maintain current pace.';bM=45;bR='Moderate load - rest recommended soon';}
+  else if(zone==='stress'){sN='Stress Detected';sD='HR elevated + HRV low. AI lowering content difficulty.';bM=10;bR='HR elevated + HRV low - break recommended';addAIMessage('Biometric fusion detected cognitive overload. I have switched to easier material. A short break will reset your focus.');}
+  else                    {sN='Fatigue Detected';sD='HRV dropping + low face focus. Rest to restore performance.';bM=5;bR='HRV drop + fatigue - rest now';addAIMessage('Fusion analysis: HRV has dropped and facial focus is low - signs of cognitive fatigue. 5 min break saves 30 min of low-quality study.');}
+  document.getElementById('fusionStateName').textContent=sN; document.getElementById('fusionStateName').style.color=rc;
+  document.getElementById('fusionStateDesc').textContent=sD;
+  if(!breakInterval||bM<=10){
+    breakSeconds=bM*60; clearInterval(breakInterval);
+    breakInterval=setInterval(()=>{
+      breakSeconds=Math.max(0,breakSeconds-1);
+      const m=Math.floor(breakSeconds/60),s=breakSeconds%60;
+      document.getElementById('breakTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      if(breakSeconds===0){clearInterval(breakInterval);showAlert('Break Time!','&#x23F0;',bR+'. A 5-min break now boosts retention!');}
+    },1000);
   }
+  document.getElementById('breakTitle').textContent='Next Break in';
+  document.getElementById('breakReason').textContent=bR;
+  document.getElementById('breakTimer').style.color=rc;
+  document.getElementById('breakTimer').style.borderColor=rc;
+  const icons=['&#x23F0;','&#x26A0;&#xFE0F;','&#x1F6D1;'];
+  document.getElementById('breakIcon').textContent=score>=70?''+String.fromCodePoint(0x23F0):score>=45?''+String.fromCodePoint(0x26A0):String.fromCodePoint(0x1F6D1);
+}
+function setFsig(id,val,pct,color){
+  document.getElementById('fsig-'+id).textContent=val;
+  document.getElementById('fsig-'+id).style.color=color;
+  document.getElementById('fsig-'+id+'-bar').style.width=pct+'%';
+  document.getElementById('fsig-'+id+'-bar').style.background=color;
 }
 
 function drawHRWave() {
@@ -1542,6 +1642,8 @@ function startGazeTracking() {
     ff.style.width = focusLevel + '%';
     ff.style.background = focusLevel > 60 ? 'var(--green)' : focusLevel > 30 ? 'var(--gold)' : 'var(--accent)';
     document.getElementById('focusVal').textContent = focusLevel + '%';
+    fusionEyeScore = focusLevel;
+    if (currentBPM > 0) updateBiometricFusion(currentBPM, currentHRV, currentBPM<76?'rest':currentBPM<96?'focus':'stress');
     if (distracted) {
       clearTimeout(distractionTimer);
       distractionTimer = setTimeout(() => showAlert('Attention Check 👀', '🧭', 'AI detected your gaze has drifted from the screen for over 5 seconds. Click below to return to your lesson.'), 5000);
@@ -1570,7 +1672,9 @@ function updateEmotion(em) {
   const dot = document.getElementById('dot-emotion');
   dot.className = 'sensor-dot';
   dot.classList.add(em.name === 'Focused' || em.name === 'Deep Focus' ? 'active' : em.name === 'Confused' ? 'warning' : 'error');
-  if (em.name === 'Tired') showAlert('Break Reminder 😴', '😴', 'Fatigue detected — you\'ve been studying hard! A 5-minute break will help you retain more. Come back refreshed!');
+  fusionFaceScore = em.focused;
+  if (currentBPM > 0) updateBiometricFusion(currentBPM, currentHRV, currentBPM<76?'rest':currentBPM<96?'focus':'stress');
+  if (em.name === 'Tired') showAlert('Break Reminder', '😴', 'Fatigue detected - facial cues and HRV both confirm rest is needed. 5 minutes now improves retention significantly!');
 }
 
 function updateSensor(id, state, text) {

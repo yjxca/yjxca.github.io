@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduAI — 生物反馈自适应教学系统</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  :root {
+    --bg: #080c14;
+    --surface: #0d1520;
+    --surface2: #111d2e;
+    --border: rgba(99,179,237,0.12);
+    --accent-blue: #63b3ed;
+    --accent-green: #68d391;
+    --accent-amber: #f6ad55;
+    --accent-red: #fc8181;
+    --accent-purple: #b794f4;
+    --accent-cyan: #76e4f7;
+    --text-primary: #e2e8f0;
+    --text-secondary: #718096;
+    --text-muted: #4a5568;
+    --hr-color: #fc8181;
+    --focus-color: #68d391;
+    --rest-color: #f6ad55;
+    --danger-color: #fc8181;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Noto Sans SC', 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-rows: 56px 1fr;
+    height: 100vh;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: rgba(13,21,32,0.9);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(104,211,145,0.1);
+    border: 1px solid rgba(104,211,145,0.25);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--accent-green);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Main layout */
+  .main {
+    display: grid;
+    grid-template-columns: 320px 1fr 280px;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* Panels */
+  .panel-left, .panel-right {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .panel-right {
+    border-right: none;
+    border-left: 1px solid var(--border);
+  }
+
+  .panel-center {
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--bg);
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ===== HEART RATE WIDGET ===== */
+  .hr-widget {
+    background: linear-gradient(135deg, rgba(252,129,129,0.08), rgba(252,129,129,0.03));
+    border: 1px solid rgba(252,129,129,0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hr-widget::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(252,129,129,0.1), transparent 70%);
+    pointer-events: none;
+  }
+
+  .hr-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .hr-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .hr-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--hr-color);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .hr-unit {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+
+  .hr-icon {
+    font-size: 24px;
+    animation: heartbeat 1s ease-in-out infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.2); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.15); }
+    70% { transform: scale(1); }
+  }
+
+  /* ECG Line */
+  .ecg-container {
+    width: 100%;
+    height: 48px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ecg-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* HR Zones */
+  .hr-zones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .hr-zone {
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid transparent;
+    transition: all 0.4s ease;
+  }
+
+  .hr-zone.active {
+    transform: scale(1.02);
+  }
+
+  .zone-rest { background: rgba(104,211,145,0.08); border-color: rgba(104,211,145,0.2); color: var(--accent-green); }
+  .zone-focus { background: rgba(99,179,237,0.08); border-color: rgba(99,179,237,0.2); color: var(--accent-blue); }
+  .zone-stress { background: rgba(252,129,129,0.08); border-color: rgba(252,129,129,0.2); color: var(--accent-red); }
+  .zone-rest.active { background: rgba(104,211,145,0.2); border-color: rgba(104,211,145,0.5); }
+  .zone-focus.active { background: rgba(99,179,237,0.2); border-color: rgba(99,179,237,0.5); }
+  .zone-stress.active { background: rgba(252,129,129,0.2); border-color: rgba(252,129,129,0.5); }
+
+  .zone-range { font-weight: 600; font-size: 11px; margin-bottom: 2px; }
+  .zone-name { opacity: 0.7; }
+
+  /* HRV */
+  .hrv-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .hrv-value {
+    color: var(--accent-purple);
+    font-weight: 600;
+  }
+
+  /* ===== BIOMETRIC FUSION ===== */
+  .fusion-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .fusion-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Signal grid */
+  .signal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .signal-item {
+    padding: 8px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .signal-name {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .signal-val {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .signal-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+
+  .signal-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  /* Fusion Score */
+  .fusion-score-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .fusion-score-ring {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+
+  .fusion-score-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .fusion-score-ring .score-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    transform: none;
+  }
+
+  .fusion-state-text {
+    flex: 1;
+  }
+
+  .fusion-state-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .fusion-state-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ===== FACIAL + EYE ===== */
+  .cam-feed {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #060a10;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .cam-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Face detection box */
+  .face-box {
+    position: absolute;
+    width: 120px;
+    height: 140px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%);
+    border: 2px solid var(--accent-green);
+    border-radius: 4px;
+    animation: face-track 4s ease-in-out infinite;
+  }
+
+  @keyframes face-track {
+    0%, 100% { transform: translate(-50%, -60%) scale(1); border-color: var(--accent-green); }
+    50% { transform: translate(-48%, -58%) scale(1.02); }
+  }
+
+  .face-box::before, .face-box::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-color: var(--accent-cyan);
+    border-style: solid;
+  }
+
+  .face-box::before {
+    top: -3px; left: -3px;
+    border-width: 2px 0 0 2px;
+  }
+
+  .face-box::after {
+    bottom: -3px; right: -3px;
+    border-width: 0 2px 2px 0;
+  }
+
+  /* Eye tracking dots */
+  .eye-point {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 8px var(--accent-cyan);
+    animation: eye-move 3s ease-in-out infinite;
+  }
+
+  .eye-left { top: 35%; left: 38%; }
+  .eye-right { top: 35%; left: 58%; }
+
+  @keyframes eye-move {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(2px, 1px); }
+    66% { transform: translate(-1px, -1px); }
+  }
+
+  /* Expression chips */
+  .expr-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .expr-chip {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+
+  .expr-chip.active {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    background: rgba(104,211,145,0.1);
+  }
+
+  .expr-chip.warn {
+    border-color: var(--accent-amber);
+    color: var(--accent-amber);
+    background: rgba(246,173,85,0.1);
+  }
+
+  .expr-chip.danger {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+    background: rgba(252,129,129,0.1);
+  }
+
+  /* ===== CENTER PANEL ===== */
+  .alert-banner {
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1px solid transparent;
+    transition: all 0.5s ease;
+  }
+
+  .alert-banner.ok {
+    background: rgba(104,211,145,0.06);
+    border-color: rgba(104,211,145,0.2);
+  }
+
+  .alert-banner.warn {
+    background: rgba(246,173,85,0.08);
+    border-color: rgba(246,173,85,0.25);
+  }
+
+  .alert-banner.danger {
+    background: rgba(252,129,129,0.08);
+    border-color: rgba(252,129,129,0.3);
+    animation: alert-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes alert-pulse {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 20px rgba(252,129,129,0.15); }
+  }
+
+  .alert-icon { font-size: 20px; flex-shrink: 0; }
+
+  .alert-content { flex: 1; }
+
+  .alert-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .alert-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .alert-action {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    border: 1px solid;
+    background: transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    color: var(--text-primary);
+  }
+
+  .alert-action:hover { opacity: 0.8; transform: translateY(-1px); }
+
+  /* Content area */
+  .content-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .content-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .difficulty-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(183,148,244,0.1);
+    border: 1px solid rgba(183,148,244,0.25);
+    color: var(--accent-purple);
+  }
+
+  .content-body {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .highlight-box {
+    background: rgba(99,179,237,0.06);
+    border-left: 3px solid var(--accent-blue);
+    padding: 12px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 12px 0;
+  }
+
+  /* ===== RIGHT PANEL ===== */
+  .timeline-wrap {
+    margin-bottom: 12px;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    align-items: flex-start;
+  }
+
+  .timeline-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    width: 36px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .timeline-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .timeline-text {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .timeline-text strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* Biometric correlation chart */
+  .correlation-chart {
+    width: 100%;
+    height: 100px;
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .correlation-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+  }
+
+  /* Break recommendation */
+  .break-card {
+    background: linear-gradient(135deg, rgba(246,173,85,0.08), rgba(252,129,129,0.05));
+    border: 1px solid rgba(246,173,85,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .break-timer {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent-amber);
+    text-align: center;
+    letter-spacing: -0.04em;
+    margin: 8px 0;
+  }
+
+  .break-label {
+    font-size: 11px;
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .break-btn {
+    width: 100%;
+    padding: 8px;
+    background: rgba(246,173,85,0.15);
+    border: 1px solid rgba(246,173,85,0.3);
+    border-radius: 6px;
+    color: var(--accent-amber);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .break-btn:hover { background: rgba(246,173,85,0.25); }
+
+  /* AI recommendation */
+  .ai-rec {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .ai-rec-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .ai-badge {
+    padding: 2px 8px;
+    background: rgba(183,148,244,0.15);
+    border: 1px solid rgba(183,148,244,0.25);
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--accent-purple);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .ai-rec-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* Scenario buttons */
+  .scenario-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .scenario-btn {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: 'Noto Sans SC', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .scenario-btn:hover {
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
+    background: rgba(99,179,237,0.06);
+  }
+
+  .scenario-btn.active {
+    border-color: var(--accent-blue);
+    background: rgba(99,179,237,0.08);
+    color: var(--text-primary);
+  }
+
+  .scenario-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Metrics row */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .metric-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+
+  .metric-trend {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* Gaze heatmap */
+  .gaze-map {
+    width: 100%;
+    height: 60px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .gaze-dot {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(118,228,247,0.6), transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: gaze-wander 4s ease-in-out infinite;
+  }
+
+  @keyframes gaze-wander {
+    0% { left: 50%; top: 50%; }
+    25% { left: 60%; top: 40%; }
+    50% { left: 45%; top: 55%; }
+    75% { left: 55%; top: 45%; }
+    100% { left: 50%; top: 50%; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      EduAI Biometric
+    </div>
+    <div class="header-center">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        传感器在线
+      </div>
+      <span style="color:var(--text-muted);font-size:11px" id="clock">--:--:--</span>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace">
+      学生：张明 · 第 23 课
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- ===== LEFT PANEL ===== -->
+    <div class="panel-left">
+
+      <!-- Heart Rate -->
+      <div class="section-label">❤️ 心率监测</div>
+      <div class="hr-widget">
+        <div class="hr-top">
+          <div>
+            <div class="hr-label">BPM</div>
+            <div class="hr-value"><span id="hr-num">78</span><span class="hr-unit">bpm</span></div>
+          </div>
+          <div class="hr-icon" id="hr-icon">💓</div>
+        </div>
+
+        <!-- ECG canvas -->
+        <div class="ecg-container">
+          <canvas class="ecg-canvas" id="ecg-canvas"></canvas>
+        </div>
+
+        <!-- Zones -->
+        <div class="hr-zones">
+          <div class="hr-zone zone-rest" id="zone-rest">
+            <div class="zone-range">60-75</div>
+            <div class="zone-name">放松</div>
+          </div>
+          <div class="hr-zone zone-focus active" id="zone-focus">
+            <div class="zone-range">76-95</div>
+            <div class="zone-name">专注</div>
+          </div>
+          <div class="hr-zone zone-stress" id="zone-stress">
+            <div class="zone-range">96+</div>
+            <div class="zone-name">紧张</div>
+          </div>
+        </div>
+
+        <div class="hrv-row">
+          <span>心率变异性 HRV</span>
+          <span class="hrv-value" id="hrv-val">42 ms</span>
+        </div>
+      </div>
+
+      <!-- Fusion -->
+      <div class="section-label">🔀 多模态融合</div>
+      <div class="fusion-card">
+        <div class="fusion-title">🧬 生物信号融合分析</div>
+
+        <div class="signal-grid">
+          <div class="signal-item">
+            <div class="signal-name">表情专注度</div>
+            <div class="signal-val" id="face-score" style="color:var(--accent-green)">87%</div>
+            <div class="signal-bar"><div class="signal-fill" id="face-bar" style="width:87%;background:var(--accent-green)"></div></div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-name">心率压力指数</div>
+            <div class="signal-val" id="hr-stress" style="color:var(--accent-blue)">23%</div>
+            <div class="signal-bar"><div class="signal-fill" id="hr-bar" style="width:23%;background:var(--accent-blue)"></div></div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-name">眼动专注度</div>
+            <div class="signal-val" id="eye-score" style="color:var(--accent-cyan)">79%</div>
+            <div class="signal-bar"><div class="signal-fill" id="eye-bar" style="width:79%;background:var(--accent-cyan)"></div></div>
+          </div>
+          <div class="signal-item">
+            <div class="signal-name">HRV 恢复度</div>
+            <div class="signal-val" id="hrv-score" style="color:var(--accent-purple)">68%</div>
+            <div class="signal-bar"><div class="signal-fill" id="hrv-bar" style="width:68%;background:var(--accent-purple)"></div></div>
+          </div>
+        </div>
+
+        <!-- Fusion ring -->
+        <div class="fusion-score-wrap">
+          <div class="fusion-score-ring">
+            <svg width="64" height="64" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="5"/>
+              <circle cx="32" cy="32" r="26" fill="none" stroke="var(--accent-green)" stroke-width="5"
+                      stroke-dasharray="163" id="fusion-ring" stroke-dashoffset="50" stroke-linecap="round"/>
+            </svg>
+            <div class="score-num" id="fusion-score" style="color:var(--accent-green)">82</div>
+          </div>
+          <div class="fusion-state-text">
+            <div class="fusion-state-title" id="fusion-state-title" style="color:var(--accent-green)">最佳学习状态</div>
+            <div class="fusion-state-desc" id="fusion-state-desc">心率平稳、表情专注、眼动集中，建议保持当前学习节奏</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario selector -->
+      <div class="section-label">⚡ 场景模拟</div>
+      <div class="scenario-btns">
+        <div class="scenario-btn active" onclick="setScenario('focus')" id="sc-focus">
+          <span class="scenario-icon">🎯</span> 专注学习中
+        </div>
+        <div class="scenario-btn" onclick="setScenario('fatigue')" id="sc-fatigue">
+          <span class="scenario-icon">😴</span> 疲劳信号上升
+        </div>
+        <div class="scenario-btn" onclick="setScenario('stress')" id="sc-stress">
+          <span class="scenario-icon">😰</span> 心率升高/焦虑
+        </div>
+        <div class="scenario-btn" onclick="setScenario('distract')" id="sc-distract">
+          <span class="scenario-icon">👀</span> 注意力分散
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== CENTER PANEL ===== -->
+    <div class="panel-center">
+
+      <!-- Smart Alert Banner -->
+      <div class="alert-banner ok" id="alert-banner">
+        <div class="alert-icon" id="alert-icon">✅</div>
+        <div class="alert-content">
+          <div class="alert-title" id="alert-title">状态良好 — 继续学习</div>
+          <div class="alert-desc" id="alert-desc">心率 78 bpm（专注区间），表情专注度 87%，眼动聚焦。AI 判断：当前认知负荷适中，可适当提升内容难度。</div>
+        </div>
+        <button class="alert-action" id="alert-btn" style="border-color:rgba(104,211,145,0.3);color:var(--accent-green)">了解更多</button>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">连续学习</div>
+          <div class="metric-value" id="study-time" style="color:var(--accent-blue)">28m</div>
+          <div class="metric-trend">建议休息：62分钟后</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">综合专注分</div>
+          <div class="metric-value" id="focus-score-main" style="color:var(--accent-green)">82</div>
+          <div class="metric-trend">▲ 较昨日 +5</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">认知疲劳预测</div>
+          <div class="metric-value" id="fatigue-pred" style="color:var(--accent-amber)">低</div>
+          <div class="metric-trend">HR + 表情联合判断</div>
+        </div>
+      </div>
+
+      <!-- Content Card -->
+      <div class="content-card">
+        <div class="content-header">
+          <div class="content-title" id="content-title">📐 二次方程的图像特征</div>
+          <div class="difficulty-badge" id="diff-badge">适中</div>
+        </div>
+
+        <div class="content-body" id="content-body">
+          二次函数 f(x) = ax² + bx + c 的图像是一条抛物线，其形态由系数 a 决定。
+          当 a &gt; 0 时，开口朝上；当 a &lt; 0 时，开口朝下。
+          <br><br>
+          顶点坐标是理解抛物线的关键，可通过配方法求得：
+        </div>
+
+        <div class="highlight-box" id="highlight-box">
+          顶点坐标公式：x = -b/(2a)，将 x 代入原函数得顶点 y 坐标。
+          这也是对称轴的位置。
+        </div>
+
+        <div class="content-body" id="content-body2">
+          理解顶点的意义后，我们可以通过判别式 Δ = b² - 4ac 判断抛物线与 x 轴的交点数量：
+          Δ &gt; 0（两个交点）、Δ = 0（一个切点）、Δ &lt; 0（无交点）。
+        </div>
+
+        <!-- Voice answer area -->
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace;">
+            🎤 AI 语音问答（心率自适应难度）
+          </div>
+          <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;font-size:13px;color:var(--text-secondary);line-height:1.6;" id="voice-question">
+            <span id="q-text">请解释：当判别式 Δ = 0 时，抛物线与 x 轴的位置关系是什么？</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px;">
+            <button onclick="simulateVoice()" style="flex:1;padding:8px;background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.25);border-radius:6px;color:var(--accent-blue);font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;">
+              🎙 开始语音回答
+            </button>
+          </div>
+          <div id="voice-feedback" style="margin-top:10px;font-size:12px;color:var(--text-muted);display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Biometric correlation -->
+      <div class="content-card">
+        <div class="content-header">
+          <div class="content-title">📊 生物信号 × 学习表现 相关性</div>
+        </div>
+        <div class="correlation-chart">
+          <canvas id="corr-canvas" class="correlation-canvas"></canvas>
+        </div>
+        <div style="display:flex;gap:16px;font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">
+          <span style="color:var(--accent-red)">■ 心率 BPM</span>
+          <span style="color:var(--accent-green)">■ 专注分</span>
+          <span style="color:var(--accent-amber)">■ 疲劳度</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <div class="panel-right">
+
+      <!-- Camera feed simulation -->
+      <div class="section-label">📷 面部追踪</div>
+      <div class="cam-feed">
+        <div class="cam-overlay">
+          <!-- Simulated face -->
+          <div style="width:100%;height:100%;background:linear-gradient(180deg,#0a1520 0%,#0d1e30 100%);display:flex;align-items:center;justify-content:center;">
+            <div style="font-size:64px;opacity:0.15;user-select:none;">👤</div>
+          </div>
+          <div class="face-box">
+            <div class="eye-point eye-left"></div>
+            <div class="eye-point eye-right"></div>
+          </div>
+          <!-- Cam label -->
+          <div style="position:absolute;top:8px;left:8px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent-green);background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:3px;">
+            ● LIVE
+          </div>
+          <div style="position:absolute;bottom:8px;left:8px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent-cyan);background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:3px;" id="expr-label">
+            专注 · 置信度 94%
+          </div>
+        </div>
+      </div>
+
+      <!-- Expression chips -->
+      <div class="expr-chips" id="expr-chips">
+        <div class="expr-chip active">专注</div>
+        <div class="expr-chip">困惑</div>
+        <div class="expr-chip">疲劳</div>
+        <div class="expr-chip">深度思考</div>
+      </div>
+
+      <!-- Eye gaze -->
+      <div class="section-label">👁 眼动热图</div>
+      <div class="gaze-map">
+        <div class="gaze-dot" id="gaze-dot"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;font-family:'JetBrains Mono',monospace;" id="gaze-label">
+        注视区域：内容中心 · 无分心
+      </div>
+
+      <!-- Break recommendation -->
+      <div class="section-label">⏰ 休息建议</div>
+      <div class="break-card">
+        <div style="font-size:11px;color:var(--text-muted);text-align:center;">距离建议休息</div>
+        <div class="break-timer" id="break-timer">62:00</div>
+        <div class="break-label" id="break-reason">基于：心率稳定 + 专注度高</div>
+        <div class="break-btn" onclick="forceBreak()">提前休息 5 分钟</div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="section-label">📋 事件时间线</div>
+      <div class="timeline-wrap" id="timeline">
+        <div class="timeline-item">
+          <div class="timeline-time">14:32</div>
+          <div class="timeline-dot" style="background:var(--accent-green)"></div>
+          <div class="timeline-text"><strong>进入专注状态</strong> — 心率 76bpm，表情平静</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">14:28</div>
+          <div class="timeline-dot" style="background:var(--accent-blue)"></div>
+          <div class="timeline-text"><strong>难度自动上调</strong> — HR低+专注度高，适合挑战</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">14:15</div>
+          <div class="timeline-dot" style="background:var(--accent-amber)"></div>
+          <div class="timeline-text"><strong>微疲劳检测</strong> — HR升至91bpm，眨眼频率↑</div>
+        </div>
+      </div>
+
+      <!-- AI Recommendation -->
+      <div class="section-label">🤖 AI 个性化建议</div>
+      <div class="ai-rec">
+        <div class="ai-rec-header">
+          <span>生物反馈建议</span>
+          <div class="ai-badge">Claude AI</div>
+        </div>
+        <div class="ai-rec-text" id="ai-rec-text">
+          当前心率处于专注区间（78 bpm），HRV 42ms 表明自主神经系统良好。建议在接下来 15 分钟内处理较难题目，充分利用当前最佳认知窗口期。
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let currentScenario = 'focus';
+let hrValue = 78;
+let breakSeconds = 62 * 60;
+let studySeconds = 28 * 60;
+let ecgData = [];
+let corrData = { hr: [], focus: [], fatigue: [] };
+const MAX_CORR = 80;
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('zh-CN');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===== ECG CANVAS =====
+const ecgCanvas = document.getElementById('ecg-canvas');
+const ecgCtx = ecgCanvas.getContext('2d');
+
+function resizeECG() {
+  ecgCanvas.width = ecgCanvas.offsetWidth * window.devicePixelRatio;
+  ecgCanvas.height = ecgCanvas.offsetHeight * window.devicePixelRatio;
+  ecgCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function generateECGPoint(t, bpm) {
+  const period = 60 / bpm;
+  const phase = (t % period) / period;
+  let v = 0;
+  if (phase < 0.1) v = Math.sin(phase / 0.1 * Math.PI) * 0.1; // P wave
+  else if (phase < 0.15) v = -Math.sin((phase - 0.1) / 0.05 * Math.PI) * 0.15; // Q
+  else if (phase < 0.2) v = Math.sin((phase - 0.15) / 0.05 * Math.PI); // R
+  else if (phase < 0.25) v = -Math.sin((phase - 0.2) / 0.05 * Math.PI) * 0.3; // S
+  else if (phase > 0.35 && phase < 0.55) v = Math.sin((phase - 0.35) / 0.2 * Math.PI) * 0.15; // T
+  return v + (Math.random() - 0.5) * 0.02;
+}
+
+let ecgT = 0;
+function drawECG() {
+  const w = ecgCanvas.offsetWidth;
+  const h = ecgCanvas.offsetHeight;
+  if (!w || !h) return;
+
+  ecgT += 0.016;
+  ecgData.push(generateECGPoint(ecgT, hrValue));
+  if (ecgData.length > w) ecgData.shift();
+
+  ecgCtx.clearRect(0, 0, w, h);
+
+  // Grid lines
+  ecgCtx.strokeStyle = 'rgba(252,129,129,0.06)';
+  ecgCtx.lineWidth = 0.5;
+  for (let x = 0; x < w; x += 20) {
+    ecgCtx.beginPath();
+    ecgCtx.moveTo(x, 0); ecgCtx.lineTo(x, h);
+    ecgCtx.stroke();
+  }
+
+  // ECG line
+  ecgCtx.beginPath();
+  ecgCtx.strokeStyle = 'rgba(252,129,129,0.9)';
+  ecgCtx.lineWidth = 1.5;
+  ecgCtx.shadowColor = 'rgba(252,129,129,0.5)';
+  ecgCtx.shadowBlur = 4;
+
+  const step = w / ecgData.length;
+  ecgData.forEach((v, i) => {
+    const x = i * step;
+    const y = h / 2 - v * (h * 0.4);
+    i === 0 ? ecgCtx.moveTo(x, y) : ecgCtx.lineTo(x, y);
+  });
+  ecgCtx.stroke();
+  ecgCtx.shadowBlur = 0;
+}
+
+// ===== CORRELATION CHART =====
+const corrCanvas = document.getElementById('corr-canvas');
+const corrCtx = corrCanvas.getContext('2d');
+
+function resizeCorr() {
+  corrCanvas.width = corrCanvas.offsetWidth * window.devicePixelRatio;
+  corrCanvas.height = corrCanvas.offsetHeight * window.devicePixelRatio;
+  corrCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function drawCorr() {
+  const w = corrCanvas.offsetWidth;
+  const h = corrCanvas.offsetHeight;
+  if (!w || !h) return;
+
+  corrCtx.clearRect(0, 0, w, h);
+  corrCtx.fillStyle = 'rgba(0,0,0,0.3)';
+  corrCtx.fillRect(0, 0, w, h);
+
+  const drawLine = (data, color) => {
+    if (data.length < 2) return;
+    corrCtx.beginPath();
+    corrCtx.strokeStyle = color;
+    corrCtx.lineWidth = 1.5;
+    corrCtx.shadowColor = color;
+    corrCtx.shadowBlur = 3;
+    const step = w / MAX_CORR;
+    data.forEach((v, i) => {
+      const x = i * step;
+      const y = h - (v / 100) * h;
+      i === 0 ? corrCtx.moveTo(x, y) : corrCtx.lineTo(x, y);
+    });
+    corrCtx.stroke();
+    corrCtx.shadowBlur = 0;
+  };
+
+  drawLine(corrData.hr, 'rgba(252,129,129,0.8)');
+  drawLine(corrData.focus, 'rgba(104,211,145,0.8)');
+  drawLine(corrData.fatigue, 'rgba(246,173,85,0.8)');
+}
+
+// ===== SCENARIOS =====
+const scenarios = {
+  focus: {
+    hr: () => 75 + Math.random() * 8,
+    hrv: () => 38 + Math.random() * 10,
+    face: () => 82 + Math.random() * 10,
+    eye: () => 75 + Math.random() * 12,
+    fusionScore: 82,
+    fusionColor: 'var(--accent-green)',
+    fusionTitle: '最佳学习状态',
+    fusionDesc: '心率平稳、表情专注、眼动集中，建议保持当前学习节奏',
+    alertClass: 'ok',
+    alertIcon: '✅',
+    alertTitle: '状态良好 — 继续学习',
+    alertDesc: hr => `心率 ${hr} bpm（专注区间），表情专注度高，眼动聚焦。AI 判断：当前认知负荷适中，可适当提升内容难度。`,
+    alertBtn: '了解更多',
+    alertBtnStyle: 'border-color:rgba(104,211,145,0.3);color:var(--accent-green)',
+    exprActive: [0], // index of active chips
+    contentTitle: '📐 二次方程的图像特征',
+    diffBadge: '适中',
+    aiRec: '当前心率处于专注区间，HRV 表明自主神经系统良好。建议在接下来 15 分钟内处理较难题目，充分利用当前最佳认知窗口期。',
+    breakTime: 62 * 60,
+    breakReason: '基于：心率稳定 + 专注度高',
+    zone: 'focus',
+    exprLabel: '专注 · 置信度 94%',
+    gazeLabel: '注视区域：内容中心 · 无分心',
+    fatiguePred: '低',
+  },
+  fatigue: {
+    hr: () => 68 + Math.random() * 6,
+    hrv: () => 22 + Math.random() * 8,
+    face: () => 42 + Math.random() * 15,
+    eye: () => 38 + Math.random() * 15,
+    fusionScore: 34,
+    fusionColor: 'var(--accent-amber)',
+    fusionTitle: '认知疲劳警报',
+    fusionDesc: 'HRV 下降显著，表情疲态明显，眼动迟缓。联合判断：需要休息',
+    alertClass: 'danger',
+    alertIcon: '😴',
+    alertTitle: '⚠️ 检测到疲劳 — 建议立即休息',
+    alertDesc: hr => `心率 ${hr} bpm 偏低，HRV 骤降（交感神经抑制），眨眼频率↑、眼睑下垂。AI 建议：暂停学习，休息 10–15 分钟后再继续。`,
+    alertBtn: '开始休息',
+    alertBtnStyle: 'border-color:rgba(252,129,129,0.3);color:var(--accent-red)',
+    exprActive: [2],
+    contentTitle: '☕ 建议：短暂休息',
+    diffBadge: '暂停',
+    aiRec: '⚠️ 多传感器联合检测到认知疲劳：HRV 下降 40%、眨眼频率增加 2.3x、表情疲态指数 78%。强烈建议立即休息 10 分钟，避免低效学习损耗认知资源。',
+    breakTime: 2 * 60,
+    breakReason: '⚠️ 基于：HRV骤降 + 疲劳表情',
+    zone: 'rest',
+    exprLabel: '疲劳 · 置信度 89%',
+    gazeLabel: '⚠️ 眼动迟缓 · 注意力分散',
+    fatiguePred: '高',
+  },
+  stress: {
+    hr: () => 98 + Math.random() * 15,
+    hrv: () => 15 + Math.random() * 8,
+    face: () => 55 + Math.random() * 15,
+    eye: () => 60 + Math.random() * 15,
+    fusionScore: 48,
+    fusionColor: 'var(--accent-red)',
+    fusionTitle: '压力/焦虑状态',
+    fusionDesc: '心率偏高，HRV 极低，表情紧张。判断：认知超负荷，建议降低难度',
+    alertClass: 'warn',
+    alertIcon: '😰',
+    alertTitle: '⚡ 心率升高 — 检测到压力状态',
+    alertDesc: hr => `心率 ${hr} bpm（超出专注区间），HRV 极低（应激反应），表情紧张。AI 建议：降低题目难度，调整学习节奏，避免认知超负荷。`,
+    alertBtn: '降低难度',
+    alertBtnStyle: 'border-color:rgba(246,173,85,0.3);color:var(--accent-amber)',
+    exprActive: [],
+    contentTitle: '📐 基础概念复习（难度已降低）',
+    diffBadge: '简单',
+    aiRec: '🔴 心率超出正常专注区间（当前 >95 bpm），HRV 极低表明高度应激。系统已自动将题目难度从「适中」降至「基础」，建议做 3 次深呼吸，待心率回落至 80 bpm 以下再继续。',
+    breakTime: 15 * 60,
+    breakReason: '⚡ 基于：心率超标 + HRV低',
+    zone: 'stress',
+    exprLabel: '紧张 · 置信度 87%',
+    gazeLabel: '注视频繁切换 · 注意力不稳',
+    fatiguePred: '中',
+  },
+  distract: {
+    hr: () => 72 + Math.random() * 8,
+    hrv: () => 35 + Math.random() * 10,
+    face: () => 30 + Math.random() * 20,
+    eye: () => 15 + Math.random() * 20,
+    fusionScore: 38,
+    fusionColor: 'var(--accent-amber)',
+    fusionTitle: '注意力分散',
+    fusionDesc: '心率正常但眼动离开内容区域，表情漫神。需要重新引导',
+    alertClass: 'warn',
+    alertIcon: '👀',
+    alertTitle: '📍 注意力离开内容区域',
+    alertDesc: hr => `心率 ${hr} bpm 正常，但眼动追踪显示视线偏离屏幕 >3 秒，表情检测为「漫神」。AI 提示：内容是否过于简单？尝试切换到互动练习。`,
+    alertBtn: '切换练习',
+    alertBtnStyle: 'border-color:rgba(246,173,85,0.3);color:var(--accent-amber)',
+    exprActive: [],
+    contentTitle: '🎮 互动练习模式（自动切换）',
+    diffBadge: '互动',
+    aiRec: '眼动数据显示注意力持续偏离学习内容（视线外移 68% 时间），而心率正常提示非疲劳性分神。系统判断：内容难度可能偏低，已切换至互动答题模式以重新激活参与感。',
+    breakTime: 45 * 60,
+    breakReason: '心率正常，分神非疲劳所致',
+    zone: 'focus',
+    exprLabel: '漫神 · 置信度 82%',
+    gazeLabel: '⚠️ 视线偏离内容区域 >3s',
+    fatiguePred: '低',
+  }
+};
+
+function setScenario(name) {
+  currentScenario = name;
+  // Update buttons
+  ['focus','fatigue','stress','distract'].forEach(s => {
+    document.getElementById('sc-' + s).classList.toggle('active', s === name);
+  });
+  applyScenario();
+}
+
+function applyScenario() {
+  const s = scenarios[currentScenario];
+
+  // HR
+  hrValue = Math.round(s.hr());
+  document.getElementById('hr-num').textContent = hrValue;
+  document.getElementById('hrv-val').textContent = Math.round(s.hrv()) + ' ms';
+
+  // Zones
+  ['rest','focus','stress'].forEach(z => {
+    document.getElementById('zone-' + z).classList.toggle('active', z === s.zone);
+  });
+
+  // Signals
+  const faceVal = Math.round(s.face());
+  const eyeVal = Math.round(s.eye());
+  const hrStress = Math.round(Math.max(0, (hrValue - 70) / 40 * 100));
+  const hrvScore = Math.round(s.hrv() / 50 * 100);
+
+  document.getElementById('face-score').textContent = faceVal + '%';
+  document.getElementById('face-bar').style.width = faceVal + '%';
+  document.getElementById('hr-stress').textContent = hrStress + '%';
+  document.getElementById('hr-bar').style.width = hrStress + '%';
+  document.getElementById('eye-score').textContent = eyeVal + '%';
+  document.getElementById('eye-bar').style.width = eyeVal + '%';
+  document.getElementById('hrv-score').textContent = hrvScore + '%';
+  document.getElementById('hrv-bar').style.width = hrvScore + '%';
+
+  // Fusion
+  const fusionNum = s.fusionScore + Math.round((Math.random() - 0.5) * 6);
+  const dashoffset = 163 - (fusionNum / 100) * 163;
+  document.getElementById('fusion-ring').style.strokeDashoffset = dashoffset;
+  document.getElementById('fusion-ring').style.stroke = s.fusionColor;
+  document.getElementById('fusion-score').textContent = fusionNum;
+  document.getElementById('fusion-score').style.color = s.fusionColor;
+  document.getElementById('fusion-state-title').textContent = s.fusionTitle;
+  document.getElementById('fusion-state-title').style.color = s.fusionColor;
+  document.getElementById('fusion-state-desc').textContent = s.fusionDesc;
+
+  // Alert
+  const banner = document.getElementById('alert-banner');
+  banner.className = 'alert-banner ' + s.alertClass;
+  document.getElementById('alert-icon').textContent = s.alertIcon;
+  document.getElementById('alert-title').textContent = s.alertTitle;
+  document.getElementById('alert-desc').textContent = s.alertDesc(hrValue);
+  document.getElementById('alert-btn').textContent = s.alertBtn;
+  document.getElementById('alert-btn').style.cssText = s.alertBtnStyle;
+
+  // Focus score main
+  document.getElementById('focus-score-main').textContent = fusionNum;
+  document.getElementById('fatigue-pred').textContent = s.fatiguePred;
+
+  // Content
+  document.getElementById('content-title').textContent = s.contentTitle;
+  document.getElementById('diff-badge').textContent = s.diffBadge;
+  document.getElementById('ai-rec-text').textContent = s.aiRec;
+
+  // Break
+  breakSeconds = s.breakTime;
+  document.getElementById('break-reason').textContent = s.breakReason;
+
+  // Expression chips
+  const chips = document.getElementById('expr-chips').children;
+  Array.from(chips).forEach((chip, i) => {
+    chip.className = 'expr-chip';
+    if (s.exprActive.includes(i)) {
+      chip.className = 'expr-chip ' + (currentScenario === 'stress' ? 'warn' : currentScenario === 'fatigue' ? 'warn' : 'active');
+    }
+  });
+
+  document.getElementById('expr-label').textContent = s.exprLabel;
+  document.getElementById('gaze-label').textContent = s.gazeLabel;
+
+  // Add timeline event
+  addTimelineEvent(s);
+
+  // Update correlation data
+  const hrNorm = Math.round((hrValue - 55) / 60 * 100);
+  corrData.hr.push(hrNorm);
+  corrData.focus.push(faceVal);
+  corrData.fatigue.push(100 - hrvScore);
+  if (corrData.hr.length > MAX_CORR) {
+    corrData.hr.shift();
+    corrData.focus.shift();
+    corrData.fatigue.shift();
+  }
+}
+
+const timelineMessages = {
+  focus: { color: 'var(--accent-green)', text: '进入专注状态 — 心率平稳，生物指标良好' },
+  fatigue: { color: 'var(--accent-red)', text: '⚠️ 疲劳警报 — HRV骤降，建议休息' },
+  stress: { color: 'var(--accent-amber)', text: '⚡ 心率超标 — 系统降低题目难度' },
+  distract: { color: 'var(--accent-amber)', text: '👀 注意力分散 — 切换互动模式' },
+};
+
+function addTimelineEvent(s) {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  const msg = timelineMessages[currentScenario];
+
+  const timeline = document.getElementById('timeline');
+  const item = document.createElement('div');
+  item.className = 'timeline-item';
+  item.innerHTML = `
+    <div class="timeline-time">${timeStr}</div>
+    <div class="timeline-dot" style="background:${msg.color}"></div>
+    <div class="timeline-text"><strong>${msg.text}</strong></div>
+  `;
+  timeline.insertBefore(item, timeline.firstChild);
+
+  // Keep max 8
+  while (timeline.children.length > 8) {
+    timeline.removeChild(timeline.lastChild);
+  }
+}
+
+// ===== BREAK TIMER =====
+function updateBreakTimer() {
+  const mins = Math.floor(breakSeconds / 60);
+  const secs = breakSeconds % 60;
+  document.getElementById('break-timer').textContent =
+    String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+  if (currentScenario !== 'fatigue') breakSeconds = Math.max(0, breakSeconds - 1);
+}
+
+function forceBreak() {
+  breakSeconds = 5 * 60;
+  document.getElementById('break-reason').textContent = '用户手动触发休息';
+}
+
+// ===== STUDY TIMER =====
+function updateStudyTimer() {
+  studySeconds++;
+  const mins = Math.floor(studySeconds / 60);
+  document.getElementById('study-time').textContent = mins + 'm';
+}
+
+// ===== VOICE SIMULATION =====
+function simulateVoice() {
+  const fb = document.getElementById('voice-feedback');
+  fb.style.display = 'block';
+  fb.style.color = 'var(--accent-cyan)';
+  fb.textContent = '🎙 正在录音... 心率监测中 (当前 ' + hrValue + ' bpm)';
+
+  setTimeout(() => {
+    const hrZone = hrValue < 76 ? '平静' : hrValue < 96 ? '专注' : '紧张';
+    const score = currentScenario === 'focus' ? '92' : currentScenario === 'stress' ? '74' : '81';
+    fb.style.color = 'var(--accent-green)';
+    fb.textContent = `✅ AI 评分 ${score}/100 — 答案正确！心率状态：${hrZone}区间，认知表现与生物指标一致。`;
+  }, 2000);
+}
+
+// ===== ANIMATION LOOP =====
+function init() {
+  resizeECG();
+  resizeCorr();
+
+  // Init corr data
+  for (let i = 0; i < 40; i++) {
+    corrData.hr.push(30 + Math.random() * 20);
+    corrData.focus.push(75 + Math.random() * 15);
+    corrData.fatigue.push(20 + Math.random() * 15);
+  }
+
+  applyScenario();
+}
+
+let frameCount = 0;
+function loop() {
+  drawECG();
+  frameCount++;
+
+  if (frameCount % 60 === 0) {
+    // Update HR with slight variation
+    const s = scenarios[currentScenario];
+    hrValue = Math.round(s.hr());
+    document.getElementById('hr-num').textContent = hrValue;
+
+    // Update HRV
+    const hrv = Math.round(s.hrv());
+    document.getElementById('hrv-val').textContent = hrv + ' ms';
+
+    // Refresh corr data point
+    const faceVal = Math.round(s.face());
+    const hrNorm = Math.round(Math.max(0, Math.min(100, (hrValue - 55) / 60 * 100)));
+    const hrvScore = Math.round(hrv / 50 * 100);
+    corrData.hr.push(hrNorm);
+    corrData.focus.push(faceVal);
+    corrData.fatigue.push(100 - hrvScore);
+    if (corrData.hr.length > MAX_CORR) {
+      corrData.hr.shift(); corrData.focus.shift(); corrData.fatigue.shift();
+    }
+  }
+
+  if (frameCount % 180 === 0) {
+    drawCorr();
+    updateBreakTimer();
+    updateStudyTimer();
+  }
+
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('resize', () => { resizeECG(); resizeCorr(); });
+init();
+loop();
+</script>
+</body>
+</html>

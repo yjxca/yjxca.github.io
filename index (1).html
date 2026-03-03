@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jessica Yang | Web Designer & Developer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #FAFAFA;
+            --color-surface: #FFFFFF;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-accent: #1E71EB;
+            --color-accent-light: #E8F2FF;
+            --color-border: #E5E5E5;
+            --color-dark: #0a0a0a;
+            --color-cyan: #00d4ff;
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo {
+            font-family: var(--font-display); font-size: 24px; font-weight: 700;
+            color: var(--color-text); text-decoration: none;
+        }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a {
+            color: var(--color-text-muted); text-decoration: none;
+            font-size: 15px; font-weight: 500; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--color-accent); }
+
+        .hero {
+            padding: 160px 24px 100px; max-width: 1200px;
+            margin: 0 auto; text-align: center;
+        }
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(40px, 6vw, 64px); font-weight: 700;
+            line-height: 1.15; margin-bottom: 24px; color: var(--color-text);
+        }
+        .hero h1 span { color: var(--color-accent); }
+        .hero-subtitle {
+            font-size: 20px; color: var(--color-text-muted);
+            max-width: 600px; margin: 0 auto 40px;
+        }
+        .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            padding: 16px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;
+            text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; display: inline-block;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: var(--color-accent); color: white; }
+        .btn-secondary { background: transparent; color: var(--color-text); border: 2px solid var(--color-border); }
+        .btn-secondary:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+        .projects { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-label {
+            display: inline-block; background: var(--color-accent-light); color: var(--color-accent);
+            padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 600;
+            margin-bottom: 16px; letter-spacing: 0.5px;
+        }
+        .section-title {
+            font-family: var(--font-display); font-size: clamp(32px, 4vw, 42px);
+            font-weight: 700; color: var(--color-text);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 32px;
+        }
+        .project-card {
+            background: var(--color-surface); border-radius: var(--radius); overflow: hidden;
+            box-shadow: var(--shadow-md); transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none; color: inherit; display: block;
+        }
+        .project-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+        .project-thumbnail {
+            width: 100%; height: 280px; overflow: hidden; position: relative;
+        }
+        .project-thumbnail img {
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;
+        }
+        .project-card:hover .project-thumbnail img { transform: scale(1.05); }
+
+        .project-thumbnail.dark-theme {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 16px;
+        }
+        .project-thumbnail.dark-theme .logo-text { font-size: 32px; font-weight: 700; color: #00d4ff; font-family: var(--font-body); }
+        .project-thumbnail.dark-theme .tagline { color: #a0a0a0; font-size: 16px; }
+        .project-thumbnail.dark-theme .demo-btn { background: #00d4ff; color: #0a0a0a; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin-top: 8px; }
+
+        .project-thumbnail.light-theme {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 12px; padding: 40px;
+        }
+        .project-thumbnail.light-theme .logo-text { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: #1a1a1a; }
+        .project-thumbnail.light-theme .tagline { color: #666; font-size: 14px; text-align: center; }
+
+        /* EduAI thumbnail */
+        .project-thumbnail.eduai-theme {
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8f4f8 50%, #f0e8f8 100%);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 16px; padding: 40px;
+        }
+        .eduai-logo {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .eduai-dot { width: 12px; height: 12px; background: #c84b31; border-radius: 50%; }
+        .eduai-name { font-family: var(--font-display); font-size: 30px; font-weight: 700; color: #0f0e0d; }
+        .eduai-tagline { color: #8a8278; font-size: 14px; text-align: center; }
+        .eduai-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .eduai-pill {
+            padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 600;
+        }
+
+        .project-info { padding: 28px; }
+        .project-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .project-tag {
+            background: var(--color-bg); color: var(--color-text-muted);
+            padding: 6px 12px; border-radius: 100px; font-size: 13px; font-weight: 500;
+        }
+        .project-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 12px; color: var(--color-text); }
+        .project-description { color: var(--color-text-muted); font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+        .project-link {
+            color: var(--color-accent); font-weight: 600; font-size: 15px;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .project-link::after { content: '→'; transition: transform 0.2s; }
+        .project-card:hover .project-link::after { transform: translateX(4px); }
+
+        .about { padding: 100px 24px; background: var(--color-surface); }
+        .about-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+        .about h2 { font-family: var(--font-display); font-size: clamp(32px, 4vw, 42px); font-weight: 700; margin-bottom: 24px; color: var(--color-text); }
+        .about p { color: var(--color-text-muted); font-size: 18px; line-height: 1.8; margin-bottom: 16px; }
+        .skills { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 40px; }
+        .skill-tag { background: var(--color-bg); color: var(--color-text); padding: 10px 20px; border-radius: 100px; font-size: 14px; font-weight: 500; border: 1px solid var(--color-border); }
+
+        .contact { padding: 100px 24px; text-align: center; background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); }
+        .contact h2 { font-family: var(--font-display); font-size: clamp(32px, 4vw, 42px); font-weight: 700; color: white; margin-bottom: 16px; }
+        .contact p { color: rgba(255,255,255,0.7); font-size: 18px; margin-bottom: 32px; }
+        .contact-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .contact .btn-primary { background: white; color: var(--color-text); }
+        .contact .btn-secondary { border-color: rgba(255,255,255,0.3); color: white; }
+
+        footer { padding: 40px 24px; text-align: center; color: var(--color-text-muted); font-size: 14px; background: var(--color-bg); }
+        .footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 16px; }
+        .footer-links a { color: var(--color-text-muted); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--color-accent); }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .hero { padding: 120px 24px 60px; }
+        }
+        @media (max-width: 540px) {
+            .projects-grid { grid-template-columns: 1fr; }
+            .project-thumbnail { height: 220px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">Jessica Yang</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <h1>Hi, I'm <span>Jessica</span><br>Web Designer & Developer</h1>
+        <p class="hero-subtitle">
+            I create beautiful, functional websites using WordPress, Bricks Builder, and modern web technologies. Based in Oakville, Ontario. Bilingual in English and Mandarin.
+        </p>
+        <div class="hero-buttons">
+            <a href="#projects" class="btn btn-primary">View My Work</a>
+            <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+        </div>
+    </section>
+
+    <section class="projects" id="projects">
+        <div class="section-header">
+            <span class="section-label">Portfolio</span>
+            <h2 class="section-title">Featured Projects</h2>
+        </div>
+
+        <div class="projects-grid">
+
+            <!-- NovaMind AI Project -->
+            <a href="novamind-ai-case-study.html" class="project-card">
+                <div class="project-thumbnail dark-theme">
+                    <span class="logo-text">NovaMind AI</span>
+                    <span class="tagline">AI-Powered Vision Solutions</span>
+                    <span class="demo-btn">Get a Demo</span>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">Bricks Builder</span>
+                        <span class="project-tag">WordPress</span>
+                        <span class="project-tag">Landing Page</span>
+                    </div>
+                    <h3 class="project-title">AI Tech Company Landing Page</h3>
+                    <p class="project-description">
+                        A modern, dark-themed landing page for a fictional AI company featuring gradient effects, service cards, stats section, and professional UI design.
+                    </p>
+                    <span class="project-link">View Case Study</span>
+                </div>
+            </a>
+
+            <!-- Legal Services Project -->
+            <a href="legal-services-case-study.html" class="project-card">
+                <div class="project-thumbnail light-theme">
+                    <span class="logo-text">Legal Services</span>
+                    <span class="tagline">Professional Law Firm Website<br>with Dynamic ACF Templates</span>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">WordPress</span>
+                        <span class="project-tag">ACF Pro</span>
+                        <span class="project-tag">PHP</span>
+                    </div>
+                    <h3 class="project-title">Legal Services Website</h3>
+                    <p class="project-description">
+                        A WordPress development project featuring dynamic ACF-driven templates, responsive design, and a "single source of truth" content architecture.
+                    </p>
+                    <span class="project-link">View Case Study</span>
+                </div>
+            </a>
+
+            <!-- ✨ NEW: Chinese Adaptive Learning Demo -->
+            <a href="adaptive-learning-student.html" class="project-card">
+                <div class="project-thumbnail" style="background: linear-gradient(135deg, #0f1a2e 0%, #1a3a5c 50%, #2a1a3a 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:40px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:10px;height:10px;background:#d4a843;border-radius:50%;"></div>
+                        <span style="font-size:28px;font-weight:700;color:white;letter-spacing:0.05em;">智学</span>
+                    </div>
+                    <span style="color:rgba(255,255,255,0.6);font-size:13px;text-align:center;">AI 自适应教学平台 · Chinese Version</span>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+                        <span style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 14px;border-radius:100px;font-size:12px;">学习主页</span>
+                        <span style="background:rgba(212,168,67,0.3);border:1px solid rgba(212,168,67,0.5);color:#d4a843;padding:5px 14px;border-radius:100px;font-size:12px;">AI 互动</span>
+                        <span style="background:rgba(58,125,94,0.3);border:1px solid rgba(58,125,94,0.5);color:#6dbf9a;padding:5px 14px;border-radius:100px;font-size:12px;">学习报告</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">UI/UX Design</span>
+                        <span class="project-tag">HTML / CSS / JS</span>
+                        <span class="project-tag">Bilingual</span>
+                    </div>
+                    <h3 class="project-title">智学 · AI 自适应教学平台（中文版）</h3>
+                    <p class="project-description">
+                        Bilingual version of the EduAI platform for Chinese-speaking students. Upgraded with HRV analysis, heart rate zones, and multimodal biometric fusion scoring. Features AI-personalized dashboard, real-time tutor chat, and full analytics report — all in Simplified Chinese.
+                    </p>
+                    <span class="project-link">View Live Demo</span>
+                </div>
+            </a>
+
+            <!-- ✨ NEW: EduAI Adaptive Learning Demo -->
+            <a href="adaptive-learning-en.html" class="project-card">
+                <div class="project-thumbnail eduai-theme">
+                    <div class="eduai-logo">
+                        <div class="eduai-dot"></div>
+                        <span class="eduai-name">EduAI</span>
+                    </div>
+                    <span class="eduai-tagline">Multimodal AI Adaptive Learning Platform</span>
+                    <div class="eduai-pills">
+                        <span class="eduai-pill" style="background:#0f0e0d;color:#f5f0e8;">Dashboard</span>
+                        <span class="eduai-pill" style="background:#2a6b8a;color:white;">AI Tutor</span>
+                        <span class="eduai-pill" style="background:#3a7d5e;color:white;">Analytics</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">UI/UX Design</span>
+                        <span class="project-tag">HTML / CSS / JS</span>
+                        <span class="project-tag">AI Product</span>
+                    </div>
+                    <h3 class="project-title">AI Adaptive Learning Platform</h3>
+                    <p class="project-description">
+                        A multimodal AI-powered student learning experience with a personalized dashboard, real-time AI tutor chat, interactive quizzes, and a data-rich analytics report. Now upgraded with HRV monitoring, heart rate zones, and 4-signal biometric fusion scoring.
+                    </p>
+                    <span class="project-link">View Live Demo</span>
+                </div>
+            </a>
+
+            <!-- EduAI Biometric Demo -->
+            <a href="EduAI_Biometric_Demo.html" class="project-card" style="grid-column: 1 / -1;">
+                <div class="project-thumbnail" style="background:linear-gradient(135deg,#080c14 0%,#0d1a2e 40%,#1a0d2e 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:40px;position:relative;overflow:hidden;">
+                    <svg style="position:absolute;bottom:0;left:0;right:0;opacity:0.12" height="60" viewBox="0 0 800 60" preserveAspectRatio="none">
+                        <polyline points="0,30 80,30 110,5 130,55 150,15 170,45 190,30 280,30 310,5 330,55 350,15 370,45 390,30 480,30 510,5 530,55 550,15 570,45 590,30 800,30" fill="none" stroke="#fc8181" stroke-width="2"/>
+                    </svg>
+                    <div style="display:flex;align-items:center;gap:14px;z-index:1;">
+                        <div style="width:44px;height:44px;background:linear-gradient(135deg,#63b3ed,#b794f4);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;">&#x1F9E0;</div>
+                        <div>
+                            <div style="font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;color:white;letter-spacing:-0.02em;">EduAI Biometric</div>
+                            <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px;">Heart Rate &middot; HRV &middot; Multimodal Fusion</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;z-index:1;">
+                        <span style="background:rgba(252,129,129,0.15);border:1px solid rgba(252,129,129,0.35);color:#fc8181;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;">&#x2764;&#xFE0F; rPPG Heart Rate</span>
+                        <span style="background:rgba(183,148,244,0.15);border:1px solid rgba(183,148,244,0.35);color:#b794f4;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;">&#x1F4CA; HRV Analysis</span>
+                        <span style="background:rgba(99,179,237,0.15);border:1px solid rgba(99,179,237,0.35);color:#63b3ed;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;">&#x1F500; Biometric Fusion</span>
+                        <span style="background:rgba(104,211,145,0.15);border:1px solid rgba(104,211,145,0.35);color:#68d391;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;">&#x1F3AF; Adaptive Content</span>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <div class="project-tags">
+                        <span class="project-tag">Biometric AI</span>
+                        <span class="project-tag">HTML / CSS / JS</span>
+                        <span class="project-tag">rPPG &middot; HRV</span>
+                        <span class="project-tag">Multimodal Fusion</span>
+                    </div>
+                    <h3 class="project-title">EduAI Biometric &mdash; Heart Rate &amp; Fusion Learning System</h3>
+                    <p class="project-description">
+                        Advanced biometric upgrade to the EduAI platform. Integrates real-time rPPG heart rate detection with HRV (Heart Rate Variability) analysis, facial expression recognition, and eye tracking into a unified 4-signal fusion score. The system automatically adjusts content difficulty and triggers intelligent break recommendations based on live physiological state &mdash; not just timers or expressions alone.
+                    </p>
+                    <span class="project-link">View Live Demo</span>
+                </div>
+            </a>
+
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="about-inner">
+            <h2>About Me</h2>
+            <p>
+                I'm a Web Designer & Developer specializing in WordPress, custom themes, and responsive design. I built production-ready websites for real clients including a legal subscription platform with 14 custom templates.
+            </p>
+            <p>
+                With 12+ years of analytical experience in banking and 95%+ academic performance in Sheridan College's programming courses, I bring a unique combination of business acumen and technical skills to every project.
+            </p>
+            <div class="skills">
+                <span class="skill-tag">WordPress</span>
+                <span class="skill-tag">Bricks Builder</span>
+                <span class="skill-tag">PHP</span>
+                <span class="skill-tag">ACF Pro</span>
+                <span class="skill-tag">HTML5</span>
+                <span class="skill-tag">CSS3</span>
+                <span class="skill-tag">JavaScript (ES6)</span>
+                <span class="skill-tag">Responsive Design</span>
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">MySQL</span>
+                <span class="skill-tag">Figma</span>
+                <span class="skill-tag">GitHub</span>
+                <span class="skill-tag">rPPG / HRV</span>
+                <span class="skill-tag">Biometric AI</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <h2>Let's Work Together</h2>
+        <p>Have a project in mind? I'd love to hear from you.</p>
+        <div class="contact-buttons">
+            <a href="/cdn-cgi/l/email-protection#5635352c61646f6416313b373f3a7835393b" class="btn btn-primary">Send Email</a>
+            <a href="https://www.linkedin.com/in/jiax-yang" class="btn btn-secondary" target="_blank">LinkedIn</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/yjxca" target="_blank">GitHub</a>
+            <a href="https://www.linkedin.com/in/jiax-yang" target="_blank">LinkedIn</a>
+            <a href="/cdn-cgi/l/email-protection#5231312865606b6012353f333b3e7c313d3f">Email</a>
+        </div>
+        <p>&c
