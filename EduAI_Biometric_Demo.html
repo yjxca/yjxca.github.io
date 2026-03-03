@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduAI · Adaptive Learning Platform — by Jiax Yang</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0d;
+    --paper: #f5f0e8;
+    --warm: #f0ebe0;
+    --accent: #c84b31;
+    --accent2: #2a6b8a;
+    --gold: #d4a843;
+    --muted: #8a8278;
+    --surface: #ede8de;
+    --border: #d4cfc4;
+    --green: #3a7d5e;
+    --purple: #6b4fa0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ===== PORTFOLIO BANNER ===== */
+  .portfolio-banner {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+  }
+  .banner-left { display: flex; align-items: center; gap: 8px; }
+  .banner-tag {
+    background: var(--accent); color: white;
+    padding: 2px 10px; border-radius: 100px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  }
+  .banner-desc { opacity: 0.6; }
+  .banner-links { display: flex; gap: 20px; }
+  .banner-link {
+    color: rgba(245,240,232,0.7); text-decoration: none;
+    display: flex; align-items: center; gap: 5px;
+    transition: color 0.2s;
+  }
+  .banner-link:hover { color: white; }
+  .banner-link svg { width: 13px; height: 13px; fill: currentColor; }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 36px; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+    background: var(--paper);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Noto Serif', serif;
+    font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: 0.02em;
+  }
+  .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    padding: 6px 18px; border-radius: 100px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: none; background: transparent; color: var(--muted);
+    transition: all 0.2s; font-family: 'Sora', sans-serif;
+  }
+  .nav-tab.active { background: var(--ink); color: var(--paper); }
+  .nav-tab:hover:not(.active) { background: var(--surface); color: var(--ink); }
+  .nav-user {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: var(--muted);
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: white;
+  }
+
+  /* ===== SENSOR BAR ===== */
+  .sensor-bar {
+    position: fixed; top: 96px; left: 0; right: 0; z-index: 99;
+    background: var(--ink); padding: 7px 40px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .sensor-label { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 0.12em; text-transform: uppercase; }
+  .sensor-item { display: flex; align-items: center; gap: 7px; }
+  .sensor-dot { width: 7px; height: 7px; border-radius: 50%; background: #444; flex-shrink: 0; transition: background 0.3s; }
+  .sensor-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); animation: sPulse 2s infinite; }
+  .sensor-dot.warning { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+  .sensor-dot.error { background: var(--accent); }
+  @keyframes sPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .sensor-text { font-size: 11px; color: rgba(255,255,255,0.6); }
+  .sensor-value { font-family: 'DM Mono', monospace; font-size: 11px; color: white; }
+  .sensor-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .focus-track { width: 90px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 100px; overflow: hidden; }
+  .focus-fill { height: 100%; border-radius: 100px; background: var(--green); transition: width 0.5s, background 0.5s; }
+  .focus-val { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.7); }
+
+  /* ===== ALERT ===== */
+  .alert-overlay { position: fixed; top:0; left:0; right:0; bottom:0; z-index:999; background: rgba(200,75,49,0.12); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; }
+  .alert-overlay.show { display: flex; animation: aFade 0.3s ease; }
+  @keyframes aFade { from{opacity:0} to{opacity:1} }
+  .alert-box { background: white; border-radius: 20px; padding: 36px 44px; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,0.18); border: 2px solid var(--accent); max-width: 400px; }
+  .alert-icon { font-size: 48px; margin-bottom: 14px; }
+  .alert-title { font-family: 'Noto Serif', serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .alert-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 22px; }
+  .alert-btn { padding: 12px 28px; border-radius: 100px; background: var(--ink); color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
+  .alert-btn:hover { background: var(--accent2); }
+
+  /* Camera */
+  .cam-feed-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 300; width: 176px; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.22); border: 2px solid var(--border); display: none; }
+  .cam-feed-wrap.show { display: block; }
+  .cam-header { background: var(--ink); padding: 6px 10px; display: flex; align-items: center; gap: 6px; }
+  .cam-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: sPulse 1.5s infinite; }
+  .cam-lbl { font-size: 10px; color: rgba(255,255,255,0.5); }
+  #camCanvas { width: 176px; height: 126px; background: #111; display: block; }
+  video#videoEl { 
+    position: fixed; bottom: 0; right: 0;
+    width: 1px; height: 1px; opacity: 0.01;
+    pointer-events: none; z-index: -1;
+  }
+  .cam-footer { padding: 6px 10px; background: var(--ink); }
+  .cam-status-text { font-size: 11px; color: rgba(255,255,255,0.6); }
+  #gazeDot { position: fixed; width: 12px; height: 12px; border-radius: 50%; background: rgba(200,75,49,0.5); border: 2px solid var(--accent); pointer-events: none; z-index: 1000; display: none; transform: translate(-50%,-50%); transition: left 0.06s, top 0.06s; }
+
+  /* Sensor Status Card */
+  .sensor-status-card { background: linear-gradient(135deg, #0f1a2e, #1a2e3a); border-radius: 16px; padding: 24px; color: white; position: relative; overflow: hidden; }
+  .sensor-status-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(42,107,138,0.4), transparent 70%); }
+  .ss-title { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.4; margin-bottom: 16px; }
+  .ss-items { display: flex; flex-direction: column; gap: 12px; }
+  .ss-item { display: flex; align-items: center; gap: 12px; }
+  .ss-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .ss-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .ss-sub { font-size: 11px; opacity: 0.45; }
+  .ss-badge { padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; margin-left: auto; }
+  .badge-on { background: rgba(58,125,94,0.3); color: #6dbf9a; border: 1px solid rgba(58,125,94,0.4); }
+  .badge-off { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.1); }
+  .ss-btn { margin-top: 20px; width: 100%; padding: 12px; border-radius: 12px; background: var(--accent2); color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
+  .ss-btn:hover { background: #3a8aaa; transform: translateY(-1px); }
+
+  /* Heart rate panel */
+  .hr-panel { padding: 12px 16px; border-top: 1px solid var(--border); background: white; }
+  .hr-title { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .hr-display { display: flex; align-items: center; gap: 14px; }
+  .hr-bpm { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500; line-height: 1; }
+  .hr-unit { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .hr-state { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .hr-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .hr-wave { width: 100%; height: 48px; margin-top: 10px; overflow: hidden; position: relative; }
+  .hr-wave canvas { width: 100%; height: 48px; }
+  .hr-status-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .hr-indicator { width: 8px; height: 8px; border-radius: 50%; background: #ddd; flex-shrink: 0; }
+  .hr-indicator.beating { animation: heartBeat 0.8s infinite; background: var(--accent); }
+  @keyframes heartBeat { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.6} }
+  .hr-collecting { font-size: 11px; color: var(--muted); }
+  .hr-progress { flex: 1; height: 3px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+  .hr-progress-fill { height: 100%; border-radius: 100px; background: var(--accent); transition: width 0.3s; }
+  /* === BIOMETRIC FUSION === */
+  .hr-zones{display:flex;gap:5px;margin-top:10px}
+  .hr-zone{flex:1;padding:5px 4px;border-radius:6px;text-align:center;font-size:10px;font-family:'DM Mono',monospace;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .4s}
+  .hr-zone.active-rest{background:rgba(58,125,94,.12);border-color:rgba(58,125,94,.4);color:var(--green);font-weight:600}
+  .hr-zone.active-focus{background:rgba(42,107,138,.12);border-color:rgba(42,107,138,.4);color:var(--accent2);font-weight:600}
+  .hr-zone.active-stress{background:rgba(200,75,49,.12);border-color:rgba(200,75,49,.4);color:var(--accent);font-weight:600}
+  .hr-zone-name{font-size:9px;opacity:.7;margin-top:1px}
+  .hrv-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;color:var(--muted)}
+  .hrv-val{font-family:'DM Mono',monospace;font-weight:600;color:var(--purple)}
+  .fusion-panel{padding:12px 16px;border-top:1px solid var(--border);background:linear-gradient(135deg,#f8f5ff,#f0f8ff)}
+  .fusion-title{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .fusion-signals{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+  .fsig{padding:7px 9px;background:white;border-radius:8px;border:1px solid var(--border)}
+  .fsig-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .fsig-val{font-family:'DM Mono',monospace;font-size:15px;font-weight:600}
+  .fsig-bar{height:3px;border-radius:100px;background:var(--border);margin-top:5px;overflow:hidden}
+  .fsig-fill{height:100%;border-radius:100px;transition:width .8s ease}
+  .fusion-score-row{display:flex;align-items:center;gap:12px}
+  .fusion-ring-wrap{position:relative;width:56px;height:56px;flex-shrink:0}
+  .fusion-ring-wrap svg{transform:rotate(-90deg)}
+  .fusion-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:16px;font-weight:700}
+  .fusion-state-info{flex:1}
+  .fusion-state-name{font-size:13px;font-weight:600;margin-bottom:3px}
+  .fusion-state-desc{font-size:11px;color:var(--muted);line-height:1.4}
+  .break-panel{padding:10px 16px;border-top:1px solid var(--border);background:white;display:flex;align-items:center;gap:10px}
+  .break-icon{font-size:18px;flex-shrink:0}
+  .break-text{flex:1;font-size:11px;color:var(--muted);line-height:1.4}
+  .break-text strong{color:var(--ink);font-size:12px;display:block;margin-bottom:2px}
+  .break-timer-badge{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;padding:4px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);flex-shrink:0;transition:color .4s,border-color .4s}
+
+  /* Emotion panel */
+  .emotion-panel { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
+  .emotion-title { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .emotion-display { display: flex; align-items: center; gap: 10px; }
+  .emotion-face { font-size: 26px; transition: all 0.5s; }
+  .emotion-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .emotion-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .emotion-bars { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+  .ebar-row { display: flex; align-items: center; gap: 8px; }
+  .ebar-label { font-size: 10px; color: var(--muted); width: 36px; }
+  .ebar-track { flex: 1; height: 4px; background: rgba(0,0,0,0.07); border-radius: 100px; overflow: hidden; }
+  .ebar-fill { height: 100%; border-radius: 100px; transition: width 0.5s; }
+
+  /* Voice quiz */
+  .voice-quiz { background: white; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; }
+  .vq-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .vq-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .vq-title { font-family: 'Noto Serif', serif; font-size: 15px; font-weight: 700; }
+  .vq-badge { margin-left: auto; background: rgba(200,75,49,0.1); color: var(--accent); padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; }
+  .vq-question { font-size: 14px; line-height: 1.8; margin-bottom: 18px; }
+  .voice-area { border: 1.5px dashed var(--border); border-radius: 14px; padding: 20px; text-align: center; transition: all 0.3s; background: var(--surface); }
+  .voice-area.listening { border-color: var(--accent); background: rgba(200,75,49,0.03); animation: listenPulse 1.5s infinite; }
+  @keyframes listenPulse { 0%,100%{border-color:var(--accent)} 50%{border-color:rgba(200,75,49,0.25)} }
+  .voice-btn { width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer; background: var(--ink); color: white; font-size: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; transition: all 0.2s; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .voice-btn:hover { transform: scale(1.06); background: var(--accent2); }
+  .voice-btn.recording { background: var(--accent); animation: recPulse 1s infinite; }
+  @keyframes recPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .voice-hint { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .voice-transcript { font-size: 14px; color: var(--ink); min-height: 36px; line-height: 1.7; padding: 8px; text-align: left; }
+  .waveform { display: flex; align-items: center; justify-content: center; gap: 3px; height: 30px; margin: 6px 0; }
+  .wave-bar { width: 4px; border-radius: 100px; background: var(--accent); opacity: 0.4; transition: height 0.1s; }
+  .voice-result { margin-top: 14px; padding: 14px; border-radius: 12px; font-size: 13px; line-height: 1.7; display: none; }
+  .voice-result.correct { background: rgba(58,125,94,0.08); border-left: 3px solid var(--green); }
+  .voice-result.partial { background: rgba(212,168,67,0.08); border-left: 3px solid var(--gold); }
+
+  /* Emotion timeline */
+  .emotion-timeline { display: flex; flex-direction: column; gap: 10px; }
+  .etl-row { display: flex; align-items: center; gap: 10px; }
+  .etl-time { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; width: 44px; flex-shrink: 0; }
+  .etl-bars { flex: 1; display: flex; gap: 4px; }
+  .etl-seg { height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
+  .seg-focused { background: rgba(58,125,94,0.7); color: white; }
+  .seg-confused { background: rgba(212,168,67,0.7); }
+  .seg-distracted { background: rgba(200,75,49,0.35); }
+
+  /* ===== PAGE SYSTEM ===== */
+  .page { display: none; padding-top: 128px; min-height: 100vh; }
+  .page.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== PAGE 1: HOME ===== */
+  .home-hero {
+    padding: 50px 40px 36px;
+    display: grid; grid-template-columns: 1fr 360px; gap: 36px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .hero-greeting {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; color: var(--muted); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  .hero-title {
+    font-family: 'Noto Serif', serif;
+    font-size: 40px; font-weight: 700; line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .hero-title span { color: var(--accent); }
+  .hero-subtitle { font-size: 14px; color: var(--muted); line-height: 1.8; max-width: 440px; }
+
+  .today-goal {
+    margin-top: 28px;
+    background: var(--ink); color: var(--paper);
+    border-radius: 16px; padding: 22px 26px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .goal-label { font-size: 11px; letter-spacing: 0.1em; opacity: 0.5; text-transform: uppercase; }
+  .goal-text { font-family: 'Noto Serif', serif; font-size: 17px; font-weight: 600; line-height: 1.5; }
+  .goal-progress-bar {
+    background: rgba(255,255,255,0.15); border-radius: 100px; height: 4px; overflow: hidden;
+  }
+  .goal-fill { height: 100%; border-radius: 100px; background: var(--gold); width: 62%; }
+  .goal-meta { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.6; }
+
+  .ai-insight {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0e8f8 100%);
+    border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 24px;
+    position: relative; overflow: hidden;
+  }
+  .ai-insight::before {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(106,79,160,0.15), transparent 70%);
+  }
+  .ai-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; border-radius: 100px; padding: 4px 12px;
+    font-size: 11px; font-weight: 600; color: var(--purple);
+    letter-spacing: 0.05em; margin-bottom: 16px;
+  }
+  .ai-dot { width: 6px; height: 6px; background: var(--purple); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+  .ai-insight-text { font-family: 'Noto Serif', serif; font-size: 14px; line-height: 1.8; color: var(--ink); }
+  .ai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .chip {
+    padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 500; cursor: pointer;
+    border: 1.5px solid currentColor; transition: all 0.2s;
+  }
+  .chip-red { color: var(--accent); }
+  .chip-blue { color: var(--accent2); }
+  .chip-green { color: var(--green); }
+  .chip:hover { background: currentColor; color: white; }
+
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; margin-bottom: 20px;
+    max-width: 1200px; margin-left: auto; margin-right: auto;
+  }
+  .section-title {
+    font-family: 'Noto Serif', serif;
+    font-size: 20px; font-weight: 700;
+  }
+  .section-link { font-size: 12px; color: var(--muted); text-decoration: none; }
+
+  .course-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    padding: 0 40px 40px; max-width: 1200px; margin: 0 auto;
+  }
+  .course-card {
+    border: 1.5px solid var(--border); border-radius: 16px;
+    overflow: hidden; cursor: pointer; transition: all 0.25s;
+    background: white;
+  }
+  .course-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); border-color: var(--ink); }
+  .course-thumb {
+    height: 130px; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .thumb-bio { background: linear-gradient(135deg, #1a5c3a, #3a7d5e); }
+  .thumb-math { background: linear-gradient(135deg, #1a3a5c, #2a6b8a); }
+  .thumb-eng { background: linear-gradient(135deg, #2a3a5c, #4a6a9a); }
+  .thumb-hist { background: linear-gradient(135deg, #5c4a1a, #d4a843); }
+  .thumb-chem { background: linear-gradient(135deg, #3a1a5c, #6b4fa0); }
+  .thumb-cs { background: linear-gradient(135deg, #1a4a1a, #2a7a2a); }
+
+  .thumb-icon { font-size: 44px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+  .course-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    color: white; font-size: 10px; font-weight: 600; letter-spacing: 0.05em;
+    padding: 4px 10px; border-radius: 100px;
+  }
+  .ai-level {
+    position: absolute; bottom: 12px; left: 12px;
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white; font-size: 10px; padding: 3px 10px; border-radius: 100px;
+  }
+  .course-body { padding: 14px 16px 16px; }
+  .course-subject { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+  .course-name { font-family: 'Noto Serif', serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+  .course-teacher { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .course-progress-wrap { display: flex; align-items: center; gap: 8px; }
+  .mini-bar { flex: 1; height: 3px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+  .mini-fill { height: 100%; border-radius: 100px; background: var(--accent2); }
+  .mini-pct { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  /* ===== PAGE 2: LEARNING ===== */
+  .learning-layout {
+    display: grid; grid-template-columns: 270px 1fr 290px;
+    min-height: calc(100vh - 96px);
+  }
+
+  .learn-sidebar {
+    border-right: 1.5px solid var(--border);
+    padding: 28px 18px; overflow-y: auto;
+  }
+  .sidebar-section-title {
+    font-size: 10px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase;
+    margin-bottom: 12px; padding: 0 8px;
+  }
+  .chapter-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 28px; }
+  .chapter-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    transition: all 0.15s; font-size: 13px;
+  }
+  .chapter-item.active { background: var(--ink); color: var(--paper); }
+  .chapter-item:hover:not(.active) { background: var(--surface); }
+  .chapter-num {
+    width: 22px; height: 22px; border-radius: 6px; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: var(--surface); color: var(--muted);
+  }
+  .chapter-item.active .chapter-num { background: rgba(255,255,255,0.15); color: white; }
+  .chapter-item.done .chapter-num { background: var(--green); color: white; }
+  .chapter-text { flex: 1; line-height: 1.3; }
+
+  .learn-main { padding: 36px 40px; overflow-y: auto; }
+  .content-breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+  .content-breadcrumb span { color: var(--ink); }
+  .content-title {
+    font-family: 'Noto Serif', serif;
+    font-size: 28px; font-weight: 700; line-height: 1.3; margin-bottom: 8px;
+  }
+  .content-meta { display: flex; gap: 20px; font-size: 12px; color: var(--muted); margin-bottom: 32px; flex-wrap: wrap; }
+
+  .content-block { margin-bottom: 28px; }
+  .block-text { font-size: 15px; line-height: 1.9; color: #2a2520; }
+  .block-text strong { font-weight: 600; color: var(--ink); }
+
+  .visual-explainer {
+    background: var(--surface); border-radius: 16px; padding: 28px;
+    border: 1.5px solid var(--border);
+  }
+  .visual-label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .visual-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .dna-diagram {
+    display: flex; align-items: center; justify-content: center;
+    gap: 50px; padding: 16px 0;
+  }
+  .dna-column { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  .dna-base {
+    width: 56px; height: 26px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: white; font-family: 'DM Mono', monospace;
+  }
+  .base-A { background: #c84b31; }
+  .base-T { background: #2a6b8a; }
+  .base-G { background: #3a7d5e; }
+  .base-C { background: #d4a843; color: var(--ink); }
+  .dna-ladder { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  .ladder-rung { width: 80px; height: 3px; border-radius: 100px; position: relative; }
+  .rung-AT { background: linear-gradient(90deg, #c84b31 50%, #2a6b8a 50%); }
+  .rung-GC { background: linear-gradient(90deg, #3a7d5e 50%, #d4a843 50%); }
+  .rung-dot {
+    position: absolute; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--border);
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+  }
+  .dna-labels { display: flex; flex-direction: column; gap: 16px; }
+  .dna-label-item { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .dna-label-item strong { color: var(--ink); display: block; }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(200,75,49,0.06), rgba(42,107,138,0.06));
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+  }
+  .highlight-box p { font-size: 14px; line-height: 1.8; }
+
+  .video-block { border-radius: 16px; overflow: hidden; border: 1.5px solid var(--border); }
+  .video-thumb {
+    background: linear-gradient(135deg, #0f1a2e, #1a3a5c);
+    height: 180px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .play-btn {
+    width: 54px; height: 54px; background: rgba(255,255,255,0.9); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; cursor: pointer; transition: transform 0.2s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .play-btn:hover { transform: scale(1.1); }
+  .video-meta { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; background: white; }
+  .video-title { font-size: 13px; font-weight: 600; }
+  .video-duration { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  .quiz-block { background: white; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; }
+  .quiz-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .quiz-icon { width: 36px; height: 36px; background: var(--purple); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .quiz-title { font-family: 'Noto Serif', serif; font-size: 15px; font-weight: 700; }
+  .quiz-q { font-size: 14px; line-height: 1.8; margin-bottom: 18px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;
+  }
+  .quiz-opt:hover { border-color: var(--accent2); background: rgba(42,107,138,0.04); }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(58,125,94,0.08); color: var(--green); }
+  .quiz-opt.wrong { border-color: var(--accent); background: rgba(200,75,49,0.08); color: var(--accent); }
+  .opt-key {
+    width: 26px; height: 26px; border-radius: 6px; background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; flex-shrink: 0;
+  }
+
+  .ai-panel { border-left: 1.5px solid var(--border); display: flex; flex-direction: column; background: white; }
+  .ai-panel-header {
+    padding: 18px 18px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tutor-avatar {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--purple), var(--accent2));
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .tutor-name { font-size: 14px; font-weight: 600; }
+  .tutor-status { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 4px; }
+  .status-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; }
+  .ai-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 90%; }
+  .msg-ai { align-self: flex-start; }
+  .msg-user { align-self: flex-end; }
+  .msg-bubble { padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.7; }
+  .msg-ai .msg-bubble { background: var(--surface); border-bottom-left-radius: 4px; }
+  .msg-user .msg-bubble { background: var(--ink); color: var(--paper); border-bottom-right-radius: 4px; }
+  .msg-time { font-size: 10px; color: var(--muted); margin-top: 4px; padding: 0 4px; }
+  .msg-user .msg-time { text-align: right; }
+  .suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .sug-chip {
+    padding: 5px 12px; border: 1px solid var(--border); border-radius: 100px;
+    font-size: 11px; cursor: pointer; transition: all 0.15s; color: var(--muted);
+  }
+  .sug-chip:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(42,107,138,0.05); }
+  .ai-input-area { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; }
+  .ai-input {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 9px 13px; font-size: 13px; font-family: 'Sora', sans-serif;
+    resize: none; background: var(--surface); outline: none; transition: border-color 0.2s;
+  }
+  .ai-input:focus { border-color: var(--accent2); background: white; }
+  .send-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--ink); color: white; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .send-btn:hover { background: var(--accent2); transform: scale(1.05); }
+
+  /* ===== PAGE 3: REPORT ===== */
+  .report-container { padding: 40px; max-width: 1100px; margin: 0 auto; }
+  .report-hero { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 32px; }
+  .report-kpi {
+    background: white; border: 1.5px solid var(--border); border-radius: 16px;
+    padding: 22px 26px; position: relative; overflow: hidden;
+  }
+  .kpi-label { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .kpi-value { font-family: 'DM Mono', monospace; font-size: 38px; font-weight: 500; line-height: 1; margin-bottom: 8px; }
+  .kpi-sub { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+  .kpi-up { color: var(--green); }
+
+  .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .report-card { background: white; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; }
+  .card-title { font-family: 'Noto Serif', serif; font-size: 15px; font-weight: 700; margin-bottom: 20px; }
+
+  .radar-wrap { display: flex; align-items: center; justify-content: center; padding: 8px 0; }
+
+  .bar-chart { display: flex; flex-direction: column; gap: 13px; }
+  .bar-row { display: flex; align-items: center; gap: 12px; }
+  .bar-label { font-size: 12px; width: 28px; text-align: right; color: var(--muted); flex-shrink: 0; font-family: 'DM Mono', monospace; }
+  .bar-track { flex: 1; height: 10px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 100px; }
+  .bar-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); width: 28px; }
+
+  .heatmap { display: flex; flex-direction: column; gap: 5px; }
+  .heatmap-row { display: flex; gap: 5px; align-items: center; }
+  .heatmap-day-label { font-size: 10px; color: var(--muted); width: 20px; text-align: right; font-family: 'DM Mono', monospace; }
+  .heatmap-cell { width: 20px; height: 20px; border-radius: 4px; background: var(--surface); cursor: pointer; transition: transform 0.2s; }
+  .heatmap-cell:hover { transform: scale(1.2); }
+  .heat-1 { background: rgba(42,107,138,0.2); }
+  .heat-2 { background: rgba(42,107,138,0.4); }
+  .heat-3 { background: rgba(42,107,138,0.65); }
+  .heat-4 { background: rgba(42,107,138,0.9); }
+
+  .mastery-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .mastery-item {
+    aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px; cursor: pointer;
+    transition: all 0.2s; border: 1.5px solid var(--border);
+  }
+  .mastery-item:hover { transform: scale(1.06); }
+  .mastery-item.m100 { background: var(--green); border-color: var(--green); color: white; }
+  .mastery-item.m80 { background: rgba(58,125,94,0.6); border-color: var(--green); color: white; }
+  .mastery-item.m60 { background: rgba(212,168,67,0.55); border-color: var(--gold); }
+  .mastery-item.m40 { background: rgba(200,75,49,0.25); border-color: var(--accent); }
+  .mastery-item.m0 { background: var(--surface); }
+  .mastery-num { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+  .mastery-label { font-size: 9px; opacity: 0.8; text-align: center; padding: 0 2px; line-height: 1.2; }
+
+  .ai-recs { display: flex; flex-direction: column; gap: 12px; }
+  .rec-item {
+    display: flex; gap: 14px; padding: 14px; border-radius: 12px;
+    border: 1px solid var(--border); transition: all 0.2s; cursor: pointer;
+  }
+  .rec-item:hover { border-color: var(--accent2); transform: translateX(4px); }
+  .rec-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .rec-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .rec-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .rec-badge { margin-left: auto; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; align-self: flex-start; flex-shrink: 0; }
+  .badge-urgent { background: rgba(200,75,49,0.1); color: var(--accent); }
+  .badge-good { background: rgba(58,125,94,0.1); color: var(--green); }
+  .badge-new { background: rgba(106,79,160,0.1); color: var(--purple); }
+
+  .report-full { margin-bottom: 28px; }
+
+  /* Footer credit */
+  .footer-credit {
+    text-align: center; padding: 30px; font-size: 12px; color: var(--muted);
+    border-top: 1px solid var(--border); margin-top: 20px;
+  }
+  .footer-credit a { color: var(--accent2); text-decoration: none; }
+  .footer-credit a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- CAMERA & GAZE -->
+<video id="videoEl" autoplay muted playsinline></video>
+<div class="cam-feed-wrap" id="camFeedWrap">
+  <div class="cam-header"><div class="cam-dot"></div><span class="cam-lbl">Live Camera</span></div>
+  <canvas id="camCanvas"></canvas>
+  <div class="cam-footer"><div class="cam-status-text" id="camStatusText">Initializing...</div></div>
+</div>
+<div id="gazeDot"></div>
+
+<!-- ALERT OVERLAY -->
+<div class="alert-overlay" id="alertOverlay">
+  <div class="alert-box">
+    <div class="alert-icon" id="alertIcon">👀</div>
+    <div class="alert-title" id="alertTitle">Attention Check</div>
+    <div class="alert-desc" id="alertDesc">AI detected your gaze has left the screen for over 5 seconds. Click below to return to your lesson.</div>
+    <button class="alert-btn" onclick="dismissAlert()">I'm back — continue!</button>
+  </div>
+</div>
+
+<!-- PORTFOLIO BANNER -->
+<div class="portfolio-banner">
+  <div class="banner-left">
+    <span class="banner-tag">PORTFOLIO PROJECT</span>
+    <span class="banner-desc">Multimodal AI Adaptive Learning Platform — UI/UX Demo by Jiax Yang</span>
+  </div>
+  <div class="banner-links">
+    <a href="https://yjxca.github.io" target="_blank" class="banner-link">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      yjxca.github.io
+    </a>
+    <a href="https://github.com/yjxca" target="_blank" class="banner-link">
+      <svg viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+      github.com/yjxca
+    </a>
+    <a href="https://linkedin.com/in/jiax-yang" target="_blank" class="banner-link">
+      <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      linkedin.com/in/jiax-yang
+    </a>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><div class="logo-dot"></div>EduAI</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">Dashboard</button>
+    <button class="nav-tab" onclick="showPage('learn')">AI Learning</button>
+    <button class="nav-tab" onclick="showPage('report')">Progress Report</button>
+  </div>
+  <div class="nav-user">
+    <span>Alex Chen</span>
+    <div class="avatar">AC</div>
+  </div>
+</nav>
+
+<!-- SENSOR BAR -->
+<div class="sensor-bar">
+  <span class="sensor-label">AI Sensing</span>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-cam"></div>
+    <span class="sensor-text">Camera</span>
+    <span class="sensor-value" id="val-cam">Off</span>
+  </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-mic"></div>
+    <span class="sensor-text">Microphone</span>
+    <span class="sensor-value" id="val-mic">Off</span>
+  </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-gaze"></div>
+    <span class="sensor-text">Eye Tracking</span>
+    <span class="sensor-value" id="val-gaze">Off</span>
+  </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-emotion"></div>
+    <span class="sensor-text">Emotion</span>
+    <span class="sensor-value" id="val-emotion">—</span>
+  </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-hr"></div>
+    <span class="sensor-text">Heart Rate</span>
+    <span class="sensor-value" id="val-hr">—</span>
+  </div>
+  <div class="sensor-right">
+    <span class="sensor-text">Focus</span>
+    <div class="focus-track"><div class="focus-fill" id="focusFill" style="width:0%"></div></div>
+    <span class="focus-val" id="focusVal">—</span>
+  </div>
+</div>
+
+<!-- ========== PAGE 1: DASHBOARD ========== -->
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <div>
+      <div class="hero-greeting">📅 Monday, March 2, 2026</div>
+      <h1 class="hero-title">Good afternoon, Alex<br><span>Keep the momentum</span></h1>
+      <p class="hero-subtitle">Your AI tutor has analyzed yesterday's session and updated your learning path. You struggled with <strong>base pairing rules</strong> — let's tackle that today.</p>
+      <div class="today-goal">
+        <div class="goal-label">📌 Today's Goal</div>
+        <div class="goal-text">Complete "DNA Double Helix Structure"<br>and pass 3 practice questions</div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:12px;opacity:0.5">Daily progress</span>
+            <span style="font-size:12px;opacity:0.7;font-family:'DM Mono',monospace">62%</span>
+          </div>
+          <div class="goal-progress-bar"><div class="goal-fill"></div></div>
+        </div>
+        <div class="goal-meta"><span>45 min studied</span><span>~28 min remaining</span></div>
+      </div>
+    </div>
+    <div class="sensor-status-card">
+      <div class="ss-title">🤖 AI Sensing System</div>
+      <div class="ss-items">
+        <div class="ss-item">
+          <div class="ss-icon">📹</div>
+          <div>
+            <div class="ss-name">Facial Expression</div>
+            <div class="ss-sub">Detects focus, confusion & fatigue</div>
+          </div>
+          <span class="ss-badge badge-off" id="cam-badge">Off</span>
+        </div>
+        <div class="ss-item">
+          <div class="ss-icon">🎤</div>
+          <div>
+            <div class="ss-name">Voice Answer</div>
+            <div class="ss-sub">Speech recognition + AI grading</div>
+          </div>
+          <span class="ss-badge badge-off" id="mic-badge">Off</span>
+        </div>
+        <div class="ss-item">
+          <div class="ss-icon">❤️</div>
+          <div>
+            <div class="ss-name">Heart Rate (rPPG)</div>
+            <div class="ss-sub">Detects BPM via facial skin color</div>
+          </div>
+          <span class="ss-badge badge-off" id="hr-badge">Off</span>
+        </div>
+        <div class="ss-item">
+          <div class="ss-icon">👀</div>
+          <div>
+            <div class="ss-name">Eye Tracking</div>
+            <div class="ss-sub">Detects distraction & alerts you</div>
+          </div>
+          <span class="ss-badge badge-off" id="gaze-badge">Off</span>
+        </div>
+      </div>
+      <button class="ss-btn" onclick="startAllSensors()">🚀 Activate AI Sensing System</button>
+    </div>
+  </div>
+
+  <div style="max-width:1200px;margin:0 auto 18px;padding:0 40px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <h2 class="section-title">📚 My Courses</h2>
+      <a href="#" class="section-link">View all →</a>
+    </div>
+  </div>
+
+  <div class="course-grid">
+    <div class="course-card" onclick="showPage('learn')">
+      <div class="course-thumb thumb-bio">
+        <div class="thumb-icon">🧬</div>
+        <div class="course-badge">In Progress</div>
+        <div class="ai-level">⚡ AI Priority</div>
+      </div>
+      <div class="course-body">
+        <div class="course-subject">Biology</div>
+        <div class="course-name">Molecular Biology & Genetics</div>
+        <div class="course-teacher">👩‍🏫 Prof. Chen</div>
+        <div class="course-progress-wrap">
+          <div class="mini-bar"><div class="mini-fill" style="width:62%"></div></div>
+          <div class="mini-pct">62%</div>
+        </div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb thumb-math">
+        <div class="thumb-icon">📐</div>
+        <div class="course-badge">Review Due</div>
+      </div>
+      <div class="course-body">
+        <div class="course-subject">Mathematics</div>
+        <div class="course-name">Calculus & Differentiation</div>
+        <div class="course-teacher">👨‍🏫 Prof. Wang</div>
+        <div class="course-progress-wrap">
+          <div class="mini-bar"><div class="mini-fill" style="width:78%;background:var(--purple)"></div></div>
+          <div class="mini-pct">78%</div>
+        </div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb thumb-eng">
+        <div class="thumb-icon">✍️</div>
+        <div class="course-badge">New Content</div>
+      </div>
+      <div class="course-body">
+        <div class="course-subject">English</div>
+        <div class="course-name">Advanced Writing & Critical Reading</div>
+        <div class="course-teacher">👩‍🏫 Ms. Smith</div>
+        <div class="course-progress-wrap">
+          <div class="mini-bar"><div class="mini-fill" style="width:88%;background:var(--green)"></div></div>
+          <div class="mini-pct">88%</div>
+        </div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb thumb-hist">
+        <div class="thumb-icon">🏛️</div>
+      </div>
+      <div class="course-body">
+        <div class="course-subject">History</div>
+        <div class="course-name">Modern History: Industrial Revolution</div>
+        <div class="course-teacher">👨‍🏫 Prof. Zhang</div>
+        <div class="course-progress-wrap">
+          <div class="mini-bar"><div class="mini-fill" style="width:55%;background:var(--gold)"></div></div>
+          <div class="mini-pct">55%</div>
+        </div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb thumb-chem">
+        <div class="thumb-icon">⚗️</div>
+      </div>
+      <div class="course-body">
+        <div class="course-subject">Chemistry</div>
+        <div class="course-name">Organic Chemistry & Reactions</div>
+        <div class="course-teacher">👩‍🏫 Prof. Liu</div>
+        <div class="course-progress-wrap">
+          <div class="mini-bar"><div class="mini-fill" style="width:22%;background:var(--accent)"></div></div>
+          <div class="mini-pct">22%</div>
+        </div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-thumb thumb-cs">
+        <div class="thumb-icon">💻</div>
+      </div>
+      <div class="course-body">
+        <div class="course-subject">Computer Science</div>
+        <div class="course-name">Data Structures & Algorithms</div>
+        <div class="course-teacher">👨‍🏫 Prof. Lee</div>
+        <div class="course-progress-wrap">
+          <div class="mini-bar"><div class="mini-fill" style="width:41%;background:var(--accent2)"></div></div>
+          <div class="mini-pct">41%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: AI LEARNING ========== -->
+<div class="page" id="page-learn">
+  <div class="learning-layout">
+    <div class="learn-sidebar">
+      <div class="sidebar-section-title">Unit 3 · Molecular Biology</div>
+      <div class="chapter-list">
+        <div class="chapter-item done"><div class="chapter-num">✓</div><div class="chapter-text">Chemical Composition of Cells</div></div>
+        <div class="chapter-item done"><div class="chapter-num">✓</div><div class="chapter-text">Types & Functions of Nucleic Acids</div></div>
+        <div class="chapter-item active"><div class="chapter-num">3</div><div class="chapter-text">DNA Double Helix Structure</div></div>
+        <div class="chapter-item"><div class="chapter-num">4</div><div class="chapter-text">Base Pairing & Genetic Information</div></div>
+        <div class="chapter-item"><div class="chapter-num">5</div><div class="chapter-text">DNA Replication Mechanism</div></div>
+        <div class="chapter-item"><div class="chapter-num">6</div><div class="chapter-text">Gene Expression & Regulation</div></div>
+      </div>
+
+      <div class="sidebar-section-title">Resources</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="padding:10px 12px;background:var(--surface);border-radius:10px;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer">🎬 3D Animation</div>
+        <div style="padding:10px 12px;background:var(--surface);border-radius:10px;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer">📄 Summary Notes PDF</div>
+        <div style="padding:10px 12px;background:var(--surface);border-radius:10px;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer">🧪 Virtual Lab</div>
+        <div style="padding:10px 12px;background:rgba(106,79,160,0.08);border-radius:10px;font-size:12px;display:flex;gap:8px;align-items:center;cursor:pointer;color:var(--purple)">🤖 AI Practice Mode</div>
+      </div>
+
+      <div style="margin-top:22px;padding:13px;background:rgba(58,125,94,0.08);border-radius:12px;border:1px solid rgba(58,125,94,0.2)">
+        <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:6px">⚡ AI Adaptation Note</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">You learn faster with visuals. Extra diagrams and animations have been loaded for this chapter.</div>
+      </div>
+    </div>
+
+    <div class="learn-main">
+      <div class="content-breadcrumb">Biology › Molecular Biology › <span>DNA Double Helix Structure</span></div>
+      <h1 class="content-title">DNA Double Helix Structure</h1>
+      <div class="content-meta">
+        <span>⏱ Est. 25 min</span>
+        <span>🧩 Intermediate</span>
+        <span>🎯 High-frequency exam topic</span>
+        <span style="color:var(--purple)">🤖 AI-personalized for you</span>
+      </div>
+
+      <div class="content-block">
+        <p class="block-text">In 1953, <strong>Watson and Crick</strong> proposed the double helix model of DNA using X-ray crystallography data — one of the most significant scientific discoveries of the 20th century. It revealed the molecular basis for how genetic information is stored and transmitted across generations.</p>
+      </div>
+
+      <div class="content-block">
+        <div class="visual-explainer">
+          <div class="visual-label">📊 Diagram: Base Pairing Rules</div>
+          <div class="dna-diagram">
+            <div class="dna-column">
+              <div class="dna-base base-A">A</div>
+              <div class="dna-base base-T">T</div>
+              <div class="dna-base base-G">G</div>
+              <div class="dna-base base-C">C</div>
+              <div class="dna-base base-A">A</div>
+              <div class="dna-base base-G">G</div>
+            </div>
+            <div class="dna-ladder">
+              <div class="ladder-rung rung-AT"><div class="rung-dot"></div></div>
+              <div class="ladder-rung" style="background:linear-gradient(270deg,#c84b31 50%,#2a6b8a 50%)"><div class="rung-dot"></div></div>
+              <div class="ladder-rung rung-GC"><div class="rung-dot"></div></div>
+              <div class="ladder-rung" style="background:linear-gradient(270deg,#3a7d5e 50%,#d4a843 50%)"><div class="rung-dot"></div></div>
+              <div class="ladder-rung rung-AT"><div class="rung-dot"></div></div>
+              <div class="ladder-rung rung-GC"><div class="rung-dot"></div></div>
+            </div>
+            <div class="dna-column">
+              <div class="dna-base base-T">T</div>
+              <div class="dna-base base-A">A</div>
+              <div class="dna-base base-C">C</div>
+              <div class="dna-base base-G">G</div>
+              <div class="dna-base base-T">T</div>
+              <div class="dna-base base-C">C</div>
+            </div>
+            <div class="dna-labels">
+              <div class="dna-label-item"><strong>A — T</strong>Adenine pairs with Thymine<br>2 hydrogen bonds</div>
+              <div class="dna-label-item"></div>
+              <div class="dna-label-item"><strong>G — C</strong>Guanine pairs with Cytosine<br>3 hydrogen bonds</div>
+              <div class="dna-label-item"></div>
+              <div class="dna-label-item"><strong>Memory tip</strong><br>AT = 2 bonds, GC = 3 bonds</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="highlight-box">
+          <p>🔑 <strong>Chargaff's Rule:</strong> In any organism's DNA, the amount of Adenine (A) always equals Thymine (T), and Guanine (G) always equals Cytosine (C). That is, <strong>A = T</strong> and <strong>G = C</strong>.</p>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="video-block">
+          <div class="video-thumb"><div class="play-btn">▶</div></div>
+          <div class="video-meta">
+            <div class="video-title">🎬 3D Animation: DNA Double Helix Explained</div>
+            <div class="video-duration">04:32</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="voice-quiz">
+          <div class="vq-header">
+            <div class="vq-icon">🎤</div>
+            <div class="vq-title">Voice Answer · AI Real-time Grading</div>
+            <span class="vq-badge">🤖 Speech AI</span>
+          </div>
+          <div class="vq-question">Answer out loud: How many hydrogen bonds exist between A-T base pairs? What about G-C? Why are they different?</div>
+          <div class="voice-area" id="voiceArea">
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+            <div class="voice-hint" id="voiceHint">Click the mic to start your voice answer</div>
+            <div class="waveform" id="waveform"></div>
+            <div class="voice-transcript" id="transcript"></div>
+          </div>
+          <div class="voice-result" id="voiceResult"></div>
+        </div>
+      </div>
+
+      <div class="content-block">
+        <div class="quiz-block">
+          <div class="quiz-header">
+            <div class="quiz-icon">🧩</div>
+            <div class="quiz-title">Quick Check · AI-Generated</div>
+          </div>
+          <div class="quiz-q">In a single DNA strand, (A + G) accounts for 42% of all bases. What percentage does (C + T) make up across the entire double-stranded DNA?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="selectOpt(this,'wrong')"><div class="opt-key">A</div>42%</div>
+            <div class="quiz-opt" onclick="selectOpt(this,'correct')"><div class="opt-key">B</div>58%</div>
+            <div class="quiz-opt" onclick="selectOpt(this,'wrong')"><div class="opt-key">C</div>84%</div>
+            <div class="quiz-opt" onclick="selectOpt(this,'wrong')"><div class="opt-key">D</div>16%</div>
+          </div>
+          <div id="quiz-feedback" style="display:none;margin-top:16px;padding:14px;background:rgba(58,125,94,0.08);border-radius:10px;font-size:13px;line-height:1.7;border-left:3px solid var(--green)">
+            ✅ <strong>Correct!</strong> By complementary base pairing, in any double-stranded DNA, A+G = C+T. Since the single strand has A+G = 42%, and both strands are equal in total bases, the overall A+G = 42%, meaning C+T = <strong>58%</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-panel">
+      <div class="ai-panel-header">
+        <div class="tutor-avatar">🤖</div>
+        <div>
+          <div class="tutor-name">Aria · AI Tutor</div>
+          <div class="tutor-status"><div class="status-dot"></div>Online — ready to help</div>
+        </div>
+      </div>
+
+      <!-- Emotion Display -->
+      <div class="emotion-panel">
+        <div class="emotion-title">📹 Real-time Learning State</div>
+        <div class="emotion-display">
+          <div class="emotion-face" id="emotionFace">😐</div>
+          <div>
+            <div class="emotion-name" id="emotionName">Awaiting Detection</div>
+            <div class="emotion-desc" id="emotionDesc">Activate AI Sensing to begin monitoring</div>
+          </div>
+        </div>
+        <div class="emotion-bars">
+          <div class="ebar-row"><div class="ebar-label">Focus</div><div class="ebar-track"><div class="ebar-fill" id="bar-focused" style="width:0%;background:var(--green)"></div></div></div>
+          <div class="ebar-row"><div class="ebar-label">Confused</div><div class="ebar-track"><div class="ebar-fill" id="bar-confused" style="width:0%;background:var(--gold)"></div></div></div>
+          <div class="ebar-row"><div class="ebar-label">Tired</div><div class="ebar-track"><div class="ebar-fill" id="bar-tired" style="width:0%;background:var(--accent)"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Heart Rate Panel -->
+      <div class="hr-panel">
+        <div class="hr-title">❤️ Heart Rate · rPPG Detection</div>
+        <div class="hr-display">
+          <div>
+            <div class="hr-bpm" id="hrBpm" style="color:var(--accent)">--</div>
+            <div class="hr-unit">BPM</div>
+          </div>
+          <div style="flex:1">
+            <div class="hr-state" id="hrState">Initializing...</div>
+            <div class="hr-desc" id="hrDesc">Activate camera to begin heart rate detection</div>
+          </div>
+        </div>
+        <div class="hr-wave"><canvas id="hrWaveCanvas" height="48"></canvas></div>
+
+        <div class="hr-zones">
+          <div class="hr-zone" id="zone-rest">60-75<div class="hr-zone-name">Rest</div></div>
+          <div class="hr-zone" id="zone-focus">76-95<div class="hr-zone-name">Focus</div></div>
+          <div class="hr-zone" id="zone-stress">96+<div class="hr-zone-name">Stress</div></div>
+        </div>
+        <div class="hrv-row"><span>HRV (Heart Rate Variability)</span><span class="hrv-val" id="hrvVal">-- ms</span></div>
+        <div class="hr-status-row">
+          <div class="hr-indicator" id="hrIndicator"></div>
+          <span class="hr-collecting" id="hrCollecting">Camera required</span>
+          <div class="hr-progress" id="hrProgressWrap" style="display:none">
+            <div class="hr-progress-fill" id="hrProgressFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Biometric Fusion Panel -->
+      <div class="fusion-panel">
+        <div class="fusion-title">&#x1F500; Biometric Fusion Score</div>
+        <div class="fusion-signals">
+          <div class="fsig"><div class="fsig-name">Face Focus</div><div class="fsig-val" id="fsig-face" style="color:var(--green)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-face-bar" style="width:0%;background:var(--green)"></div></div></div>
+          <div class="fsig"><div class="fsig-name">HR Stress</div><div class="fsig-val" id="fsig-hr" style="color:var(--accent2)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-hr-bar" style="width:0%;background:var(--accent2)"></div></div></div>
+          <div class="fsig"><div class="fsig-name">Eye Focus</div><div class="fsig-val" id="fsig-eye" style="color:var(--accent2)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-eye-bar" style="width:0%;background:var(--accent2)"></div></div></div>
+          <div class="fsig"><div class="fsig-name">HRV Recovery</div><div class="fsig-val" id="fsig-hrv" style="color:var(--purple)">--</div><div class="fsig-bar"><div class="fsig-fill" id="fsig-hrv-bar" style="width:0%;background:var(--purple)"></div></div></div>
+        </div>
+        <div class="fusion-score-row">
+          <div class="fusion-ring-wrap">
+            <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" stroke="var(--border)" stroke-width="4"/><circle cx="28" cy="28" r="22" fill="none" stroke="var(--green)" stroke-width="4" stroke-dasharray="138" id="fusionRing" stroke-dashoffset="138" stroke-linecap="round"/></svg>
+            <div class="fusion-ring-num" id="fusionScore" style="color:var(--green)">--</div>
+          </div>
+          <div class="fusion-state-info">
+            <div class="fusion-state-name" id="fusionStateName">Awaiting sensors...</div>
+            <div class="fusion-state-desc" id="fusionStateDesc">Activate AI Sensing to begin biometric fusion</div>
+          </div>
+        </div>
+      </div>
+      <!-- Break Recommendation Panel -->
+      <div class="break-panel">
+        <div class="break-icon" id="breakIcon">&#x23F0;</div>
+        <div class="break-text"><strong id="breakTitle">Break Recommendation</strong><span id="breakReason">Based on HR + HRV + Facial + Eye fusion</span></div>
+        <div class="break-timer-badge" id="breakTimer">--:--</div>
+      </div>
+
+      <div class="ai-messages" id="aiMessages">
+        <div class="msg msg-ai">
+          <div class="msg-bubble">Hey Alex! Today we're tackling DNA structure. Based on your history, you made errors on hydrogen bond counts last time — I'll make sure we nail that concept today. 💪</div>
+          <div class="msg-time">2:32 PM</div>
+        </div>
+        <div class="msg msg-user">
+          <div class="msg-bubble">Why does A-T only have 2 hydrogen bonds, not 3?</div>
+          <div class="msg-time">2:35 PM</div>
+        </div>
+        <div class="msg msg-ai">
+          <div class="msg-bubble">Great question! It comes down to molecular shape and charge distribution. A and T can only form 2 "docking points" — think of it like puzzle pieces that fit with exactly 2 connectors. G and C have a more complex shape that allows a third bond to form.</div>
+          <div class="msg-time">2:35 PM</div>
+          <div class="suggestion-chips">
+            <span class="sug-chip">Give me a practice question</span>
+            <span class="sug-chip">Show me a diagram</span>
+            <span class="sug-chip">Any memory tricks?</span>
+          </div>
+        </div>
+      </div>
+      <div class="ai-input-area">
+        <textarea class="ai-input" rows="2" placeholder="Ask Aria anything..."></textarea>
+        <button class="send-btn">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 3: PROGRESS REPORT ========== -->
+<div class="page" id="page-report">
+  <div class="report-container">
+    <div style="margin-bottom:30px;display:flex;align-items:flex-end;justify-content:space-between">
+      <div>
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">📊 AI-Generated Report</div>
+        <h1 style="font-family:'Noto Serif',serif;font-size:28px;font-weight:700">Alex Chen's Learning Report</h1>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">February 2026 · Monthly Summary</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button style="padding:8px 18px;border-radius:100px;border:1.5px solid var(--border);background:white;font-size:12px;cursor:pointer;font-family:inherit">📥 Export PDF</button>
+        <button style="padding:8px 18px;border-radius:100px;border:none;background:var(--ink);color:white;font-size:12px;cursor:pointer;font-family:inherit">Share with Teacher →</button>
+      </div>
+    </div>
+
+    <div class="report-hero">
+      <div class="report-kpi">
+        <div class="kpi-label">Study Time This Month</div>
+        <div class="kpi-value" style="color:var(--accent2)">43.5<span style="font-size:20px">h</span></div>
+        <div class="kpi-sub"><span class="kpi-up">↑ +12%</span> vs. last month</div>
+      </div>
+      <div class="report-kpi">
+        <div class="kpi-label">Average Mastery</div>
+        <div class="kpi-value" style="color:var(--accent)">76<span style="font-size:20px">%</span></div>
+        <div class="kpi-sub"><span class="kpi-up">↑ +8%</span> vs. last month</div>
+      </div>
+      <div class="report-kpi">
+        <div class="kpi-label">AI Task Completion</div>
+        <div class="kpi-value" style="color:var(--gold)">89<span style="font-size:20px">%</span></div>
+        <div class="kpi-sub"><span class="kpi-up">↑ Excellent</span> top 24% of class</div>
+      </div>
+    </div>
+
+    <div class="report-grid">
+      <div class="report-card">
+        <div class="card-title">Subject Mastery Radar</div>
+        <div class="radar-wrap">
+          <svg width="220" height="220" viewBox="-110 -110 220 220" style="overflow:visible">
+            <polygon points="0,-80 69,-40 69,40 0,80 -69,40 -69,-40" fill="none" stroke="var(--border)" stroke-width="1"/>
+            <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30" fill="none" stroke="var(--border)" stroke-width="1"/>
+            <polygon points="0,-40 35,-20 35,20 0,40 -35,20 -35,-20" fill="none" stroke="var(--border)" stroke-width="1"/>
+            <polygon points="0,-20 17,-10 17,10 0,20 -17,10 -17,-10" fill="none" stroke="var(--border)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="0" y2="-80" stroke="var(--border)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="69" y2="-40" stroke="var(--border)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="69" y2="40" stroke="var(--border)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="0" y2="80" stroke="var(--border)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="-69" y2="40" stroke="var(--border)" stroke-width="1"/>
+            <line x1="0" y1="0" x2="-69" y2="-40" stroke="var(--border)" stroke-width="1"/>
+            <polygon points="0,-60.8 62.7,-25.6 69.3,36 0,36 -42.8,25.6 -48.3,-28" fill="rgba(42,107,138,0.15)" stroke="var(--accent2)" stroke-width="2"/>
+            <text x="0" y="-88" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Sora,sans-serif">Bio 76%</text>
+            <text x="78" y="-44" text-anchor="start" font-size="11" fill="var(--muted)" font-family="Sora,sans-serif">Math 88%</text>
+            <text x="78" y="48" text-anchor="start" font-size="11" fill="var(--muted)" font-family="Sora,sans-serif">English 90%</text>
+            <text x="0" y="96" text-anchor="middle" font-size="11" fill="var(--accent)" font-family="Sora,sans-serif">Chem 45%</text>
+            <text x="-78" y="48" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Sora,sans-serif">History 62%</text>
+            <text x="-78" y="-44" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Sora,sans-serif">CS 70%</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="card-title">📹 Today's Focus Timeline</div>
+        <div class="emotion-timeline">
+          <div class="etl-row"><div class="etl-time">2:00 PM</div><div class="etl-bars"><div class="etl-seg seg-focused" style="flex:3">Focused</div><div class="etl-seg seg-confused" style="flex:1">Confused</div><div class="etl-seg seg-focused" style="flex:2">Focused</div></div></div>
+          <div class="etl-row"><div class="etl-time">2:30 PM</div><div class="etl-bars"><div class="etl-seg seg-focused" style="flex:2">Focused</div><div class="etl-seg seg-distracted" style="flex:1">Off-task</div><div class="etl-seg seg-focused" style="flex:3">Focused</div></div></div>
+          <div class="etl-row"><div class="etl-time">3:00 PM</div><div class="etl-bars"><div class="etl-seg seg-confused" style="flex:2">Confused</div><div class="etl-seg seg-focused" style="flex:4">Focused</div></div></div>
+          <div class="etl-row"><div class="etl-time">3:30 PM</div><div class="etl-bars"><div class="etl-seg seg-focused" style="flex:5">Focused</div><div class="etl-seg seg-distracted" style="flex:1">Off-task</div></div></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(58,125,94,0.7)"></div>Focused</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(212,168,67,0.7)"></div>Confused</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(200,75,49,0.35)"></div>Off-task</div>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="card-title">Daily Study Time (minutes)</div>
+        <div class="bar-chart">
+          <div class="bar-row"><div class="bar-label">Mon</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--accent2)"></div></div><div class="bar-val">78</div></div>
+          <div class="bar-row"><div class="bar-label">Tue</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--accent2)"></div></div><div class="bar-val">55</div></div>
+          <div class="bar-row"><div class="bar-label">Wed</div><div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--green)"></div></div><div class="bar-val">95</div></div>
+          <div class="bar-row"><div class="bar-label">Thu</div><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--accent)"></div></div><div class="bar-val">42</div></div>
+          <div class="bar-row"><div class="bar-label">Fri</div><div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--accent2)"></div></div><div class="bar-val">88</div></div>
+          <div class="bar-row"><div class="bar-label">Sat</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--gold)"></div></div><div class="bar-val">102</div></div>
+          <div class="bar-row"><div class="bar-label">Sun</div><div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--muted)"></div></div><div class="bar-val">30</div></div>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="card-title">Monthly Activity Heatmap</div>
+        <div style="display:flex;gap:5px;padding-left:26px;margin-bottom:5px;flex-wrap:nowrap">
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">1</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">3</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">5</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">7</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">9</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">11</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">13</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">15</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">17</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">19</div>
+          <div style="font-size:10px;color:var(--muted);width:20px;text-align:center;font-family:'DM Mono',monospace">21</div>
+        </div>
+        <div class="heatmap">
+          <div class="heatmap-row"><div class="heatmap-day-label">M</div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div></div>
+          <div class="heatmap-row"><div class="heatmap-day-label">T</div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-4"></div></div>
+          <div class="heatmap-row"><div class="heatmap-day-label">W</div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-2"></div></div>
+          <div class="heatmap-row"><div class="heatmap-day-label">T</div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div></div>
+          <div class="heatmap-row"><div class="heatmap-day-label">F</div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-1"></div></div>
+          <div class="heatmap-row"><div class="heatmap-day-label">S</div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-4"></div><div class="heatmap-cell heat-3"></div><div class="heatmap-cell heat-4"></div></div>
+          <div class="heatmap-row"><div class="heatmap-day-label">S</div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell"></div><div class="heatmap-cell heat-1"></div><div class="heatmap-cell heat-2"></div><div class="heatmap-cell heat-1"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:var(--muted)">
+          Less <div class="heatmap-cell" style="width:14px;height:14px;display:inline-block"></div><div class="heatmap-cell heat-1" style="width:14px;height:14px;display:inline-block"></div><div class="heatmap-cell heat-2" style="width:14px;height:14px;display:inline-block"></div><div class="heatmap-cell heat-3" style="width:14px;height:14px;display:inline-block"></div><div class="heatmap-cell heat-4" style="width:14px;height:14px;display:inline-block"></div> More
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="card-title">Knowledge Mastery Map · Biology</div>
+        <div class="mastery-grid">
+          <div class="mastery-item m100"><div class="mastery-num">100</div><div class="mastery-label">Cell Structure</div></div>
+          <div class="mastery-item m100"><div class="mastery-num">95</div><div class="mastery-label">Respiration</div></div>
+          <div class="mastery-item m80"><div class="mastery-num">82</div><div class="mastery-label">Photosynthesis</div></div>
+          <div class="mastery-item m80"><div class="mastery-num">78</div><div class="mastery-label">Nucleic Acids</div></div>
+          <div class="mastery-item m60"><div class="mastery-num">72</div><div class="mastery-label">DNA Replication</div></div>
+          <div class="mastery-item m60"><div class="mastery-num">65</div><div class="mastery-label">Gene Expression</div></div>
+          <div class="mastery-item m40"><div class="mastery-num">48</div><div class="mastery-label">Base Pairing</div></div>
+          <div class="mastery-item m40"><div class="mastery-num">42</div><div class="mastery-label">Genetics Laws</div></div>
+          <div class="mastery-item m0"><div class="mastery-num">—</div><div class="mastery-label">Genetic Eng.</div></div>
+          <div class="mastery-item m0"><div class="mastery-num">—</div><div class="mastery-label">Evolution</div></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:var(--green)"></div>Mastered</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(58,125,94,0.6)"></div>Good</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(212,168,67,0.6)"></div>Fair</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:3px;background:rgba(200,75,49,0.3)"></div>Needs Work</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-card report-full">
+      <div class="card-title">🤖 AI-Powered Learning Recommendations</div>
+      <div class="ai-recs">
+        <div class="rec-item">
+          <div class="rec-icon" style="background:rgba(200,75,49,0.1)">🎯</div>
+          <div class="rec-content">
+            <div class="rec-title">Priority: Strengthen "Base Pairing" — your weakest topic</div>
+            <div class="rec-desc">Your accuracy on this topic is 48%, below the class average of 72%. AI has prepared 15 targeted exercises — estimated 20 mins to bring you above 70%.</div>
+          </div>
+          <div class="rec-badge badge-urgent">⚠ Priority</div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-icon" style="background:rgba(58,125,94,0.1)">💡</div>
+          <div class="rec-content">
+            <div class="rec-title">Your peak performance window is 2:00–4:00 PM</div>
+            <div class="rec-desc">Data shows your quiz accuracy is 23% higher during afternoon sessions. AI recommends scheduling your hardest topics in this window.</div>
+          </div>
+          <div class="rec-badge badge-good">✓ Insight</div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-icon" style="background:rgba(106,79,160,0.1)">🧪</div>
+          <div class="rec-content">
+            <div class="rec-title">Try the Virtual Lab to boost Chemistry understanding</div>
+            <div class="rec-desc">Chemistry mastery is at 45%. Based on your learning style profile, interactive simulations improve retention ~40% more than reading for you.</div>
+          </div>
+          <div class="rec-badge badge-new">✦ New</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-credit">
+      Designed & developed by <a href="https://yjxca.github.io" target="_blank">Jiax Yang</a> ·
+      <a href="https://github.com/yjxca" target="_blank">GitHub</a> ·
+      <a href="https://linkedin.com/in/jiax-yang" target="_blank">LinkedIn</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== PAGE NAV =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const idx = ['home','learn','report'].indexOf(id);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+}
+function selectOpt(el, type) {
+  document.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  el.classList.add(type);
+  document.getElementById('quiz-feedback').style.display = 'block';
+}
+
+// ===== SENSOR SYSTEM =====
+let camActive = false, micActive = false, gazeActive = false;
+let emotionInterval = null, gazeInterval = null, distractionTimer = null;
+let recognition = null, isRecording = false, focusLevel = 0, waveInterval;
+
+const emotions = [
+  { name:'Focused', face:'😊', desc:'Great state — keep it up!', focused:85, confused:10, tired:5 },
+  { name:'Confused', face:'🤔', desc:'AI detected confusion — switching to simpler explanation', focused:30, confused:65, tired:5 },
+  { name:'Tired', face:'😴', desc:'Fatigue detected — a 5-min break is recommended', focused:20, confused:20, tired:60 },
+  { name:'Deep Focus', face:'🧐', desc:'High concentration detected — great learning state!', focused:92, confused:5, tired:3 },
+];
+
+async function startAllSensors() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    const video = document.getElementById('videoEl');
+    video.srcObject = stream;
+    camActive = true;
+    document.getElementById('camFeedWrap').classList.add('show');
+    const canvas = document.getElementById('camCanvas');
+    const ctx = canvas.getContext('2d');
+    function drawCam() {
+      if (!camActive) return;
+      ctx.drawImage(video, 0, 0, 176, 126);
+      ctx.strokeStyle = 'rgba(58,125,94,0.85)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(48, 14, 80, 96);
+      ctx.fillStyle = 'rgba(58,125,94,0.85)';
+      ctx.font = '9px monospace';
+      ctx.fillText('FACE DETECTED', 52, 11);
+      requestAnimationFrame(drawCam);
+    }
+    drawCam();
+    updateSensor('cam', 'active', 'Active');
+    updateBadge('cam-badge', true);
+    startRPPG(video);
+    await startMicrophone();
+    startEmotionDetection();
+    startGazeTracking();
+    finalizeLaunch();
+  } catch(e) {
+    startSimulationMode();
+  }
+}
+
+function startSimulationMode() {
+  camActive = true; micActive = true; gazeActive = true;
+  ['cam','mic','gaze'].forEach(id => { updateSensor(id, 'active', 'Simulated'); updateBadge(id+'-badge', true); });
+  document.getElementById('camFeedWrap').classList.add('show');
+  const canvas = document.getElementById('camCanvas');
+  const ctx = canvas.getContext('2d');
+  function drawSim() {
+    if (!camActive) return;
+    ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0,0,176,126);
+    ctx.fillStyle = 'rgba(42,107,138,0.3)';
+    ctx.beginPath(); ctx.ellipse(88,63,38,48,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(58,125,94,0.85)'; ctx.lineWidth = 2;
+    ctx.strokeRect(50,14,76,98);
+    ctx.fillStyle = 'rgba(58,125,94,0.85)'; ctx.font = '9px monospace';
+    ctx.fillText('FACE DETECTED', 52,11);
+    requestAnimationFrame(drawSim);
+  }
+  drawSim();
+  startSimulatedHR();
+  startEmotionDetection();
+  startGazeTracking();
+  finalizeLaunch();
+  addAIMessage('Running in Simulation Mode (browser permissions not granted). All AI sensing features will use demo data. For the full experience, grant camera & mic access.');
+}
+
+// ===== rPPG HEART RATE DETECTION =====
+const RPPG_SAMPLE_RATE = 30;
+const RPPG_WINDOW = 300; // 10 seconds of samples
+let rppgBuffer = [];
+let rppgCanvas, rppgCtx, rppgOffscreen, rppgOffCtx;
+let hrHistory = [];
+let rppgFrameCount = 0;
+let currentBPM = 0;
+
+function startRPPG(videoEl) {
+  updateSensor('hr', 'warning', 'Calibrating...');
+  updateBadge('hr-badge', true);
+  document.getElementById('hrProgressWrap').style.display = 'flex';
+  document.getElementById('hrIndicator').classList.add('beating');
+
+  rppgCanvas = document.getElementById('hrWaveCanvas');
+  rppgCtx = rppgCanvas.getContext('2d');
+  rppgCanvas.width = rppgCanvas.offsetWidth || 220;
+
+  // Offscreen canvas to sample face region
+  rppgOffscreen = document.createElement('canvas');
+  rppgOffscreen.width = 64; rppgOffscreen.height = 64;
+  rppgOffCtx = rppgOffscreen.getContext('2d');
+
+  function sampleFrame() {
+    if (!camActive) return;
+    // Sample center-face region (64x64 from center of video)
+    // Use actual video dimensions, sample center face region
+    const vw = videoEl.videoWidth || 640;
+    const vh = videoEl.videoHeight || 480;
+    const faceX = vw * 0.25, faceY = vh * 0.1;
+    const faceW = vw * 0.5, faceH = vh * 0.6;
+    rppgOffCtx.drawImage(videoEl, faceX, faceY, faceW, faceH, 0, 0, 64, 64);
+    const imgData = rppgOffCtx.getImageData(0, 0, 64, 64).data;
+
+    // Extract mean green channel (most sensitive to blood volume changes)
+    let gSum = 0, rSum = 0, bSum = 0, count = 0;
+    for (let i = 0; i < imgData.length; i += 4) {
+      rSum += imgData[i];
+      gSum += imgData[i+1];
+      bSum += imgData[i+2];
+      count++;
+    }
+    // Normalized green minus chrominance (reduces motion artifacts)
+    const gNorm = gSum / count;
+    const rNorm = rSum / count;
+    const chrominance = gNorm - 0.5 * rNorm;
+    rppgBuffer.push(chrominance);
+    if (rppgBuffer.length > RPPG_WINDOW) rppgBuffer.shift();
+
+    rppgFrameCount++;
+    const progress = Math.min(100, (rppgBuffer.length / RPPG_WINDOW) * 100);
+    document.getElementById('hrProgressFill').style.width = progress + '%';
+
+    // Draw waveform
+    drawHRWave();
+
+    // Calculate BPM every 30 frames once we have enough data
+    if (rppgBuffer.length >= RPPG_WINDOW && rppgFrameCount % 30 === 0) {
+      const bpm = calculateBPM(rppgBuffer);
+      if (bpm > 0) updateHRDisplay(bpm);
+    } else if (rppgBuffer.length < RPPG_WINDOW) {
+      document.getElementById('hrCollecting').textContent =
+        `Collecting signal... ${Math.round(progress)}%`;
+    }
+
+    requestAnimationFrame(sampleFrame);
+  }
+  sampleFrame();
+}
+
+function calculateBPM(signal) {
+  const n = signal.length;
+  // Detrend (remove DC offset)
+  const mean = signal.reduce((a,b) => a+b, 0) / n;
+  const detrended = signal.map(v => v - mean);
+
+  // Apply Hanning window to reduce spectral leakage
+  const windowed = detrended.map((v, i) => v * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (n - 1))));
+
+  // FFT (DFT for simplicity — sufficient for HR frequency range)
+  const freqResolution = RPPG_SAMPLE_RATE / n;
+  let maxPower = 0, peakFreq = 0;
+
+  // Search in 0.7–3.0 Hz = 42–180 BPM
+  const minBin = Math.floor(0.7 / freqResolution);
+  const maxBin = Math.ceil(3.0 / freqResolution);
+
+  for (let k = minBin; k <= maxBin; k++) {
+    let re = 0, im = 0;
+    for (let t = 0; t < n; t++) {
+      const angle = -2 * Math.PI * k * t / n;
+      re += windowed[t] * Math.cos(angle);
+      im += windowed[t] * Math.sin(angle);
+    }
+    const power = re * re + im * im;
+    if (power > maxPower) { maxPower = power; peakFreq = k * freqResolution; }
+  }
+
+  const bpm = Math.round(peakFreq * 60);
+  // Sanity check: only accept physiologically plausible values
+  return (bpm >= 45 && bpm <= 160) ? bpm : 0;
+}
+
+// === BIOMETRIC FUSION STATE ===
+let currentHRV=0, fusionFaceScore=0, fusionEyeScore=0, breakSeconds=90*60, breakInterval=null;
+
+function updateHRDisplay(bpm){
+  currentBPM=bpm; hrHistory.push(bpm); if(hrHistory.length>10) hrHistory.shift();
+  const smoothed=Math.round(hrHistory.reduce((a,b)=>a+b,0)/hrHistory.length);
+  document.getElementById('hrBpm').textContent=smoothed;
+  document.getElementById('hrProgressWrap').style.display='none';
+  document.getElementById('hrCollecting').textContent='Live measurement';
+  let state,desc,color,zone;
+  if(smoothed<60)      {state='Resting';      desc='Very calm - ideal for deep reading';       color='var(--accent2)';zone='rest';}
+  else if(smoothed<76) {state='Relaxed Focus';desc='Calm & ready - good warm-up state';        color='var(--green)';  zone='rest';}
+  else if(smoothed<96) {state='Engaged';      desc='Optimal learning zone - keep going';        color='var(--green)';  zone='focus';}
+  else if(smoothed<110){state='Elevated';     desc='Cognitive load rising - try a slow breath';color='var(--gold)';   zone='stress';}
+  else                 {state='High Stress';  desc='AI reducing difficulty - pace yourself';   color='var(--accent)'; zone='stress';}
+  document.getElementById('hrState').textContent=state; document.getElementById('hrState').style.color=color;
+  document.getElementById('hrDesc').textContent=desc;   document.getElementById('hrBpm').style.color=color;
+  document.getElementById('hrIndicator').classList.add('beating');
+  document.getElementById('hrIndicator').style.background=color;
+  document.getElementById('hrIndicator').style.animationDuration=(60/smoothed)+'s';
+  updateSensor('hr','active',smoothed+' BPM');
+  ['rest','focus','stress'].forEach(z=>{document.getElementById('zone-'+z).className='hr-zone'+(z===zone?' active-'+z:'');});
+  const v=hrHistory.length>2?hrHistory.reduce((s,x)=>s+Math.abs(x-smoothed),0)/hrHistory.length:0;
+  currentHRV=Math.round(20+v*8+Math.random()*5);
+  document.getElementById('hrvVal').textContent=currentHRV+' ms';
+  updateBiometricFusion(smoothed,currentHRV,zone);
+  if(smoothed>105&&hrHistory.length>3) addAIMessage('Heart rate elevated ('+smoothed+' BPM) - I have adjusted content difficulty. Try 3 slow breaths; it genuinely improves retention.');
+}
+
+function updateBiometricFusion(bpm,hrv,zone){
+  const hrStress=Math.max(0,Math.min(100,Math.round((bpm-60)/50*100)));
+  const hrvRec=Math.min(100,Math.round(hrv/60*100));
+  if(!fusionFaceScore) fusionFaceScore=65+Math.random()*25;
+  if(!fusionEyeScore)  fusionEyeScore=60+Math.random()*30;
+  const face=Math.round(fusionFaceScore), eye=Math.round(fusionEyeScore);
+  setFsig('face',face+'%',face,'var(--green)'); setFsig('hr',hrStress+'%',hrStress,'var(--accent2)');
+  setFsig('eye',eye+'%',eye,'var(--accent2)');  setFsig('hrv',hrvRec+'%',hrvRec,'var(--purple)');
+  const score=Math.round(face*0.30+eye*0.25+hrvRec*0.30+(100-hrStress)*0.15);
+  const dashoffset=138-(score/100)*138;
+  const rc=score>=70?'var(--green)':score>=45?'var(--gold)':'var(--accent)';
+  document.getElementById('fusionRing').style.strokeDashoffset=dashoffset;
+  document.getElementById('fusionRing').style.stroke=rc;
+  document.getElementById('fusionScore').textContent=score;
+  document.getElementById('fusionScore').style.color=rc;
+  let sN,sD,bM,bR;
+  if(score>=75)           {sN='Peak Learning State';sD='HR stable, HRV healthy, face and gaze focused. Increase difficulty now.';bM=75;bR='HR stable + high HRV - ideal focus window';}
+  else if(score>=55)      {sN='Good - Moderate Load';sD='Acceptable biometric balance. Maintain current pace.';bM=45;bR='Moderate load - rest recommended soon';}
+  else if(zone==='stress'){sN='Stress Detected';sD='HR elevated + HRV low. AI lowering content difficulty.';bM=10;bR='HR elevated + HRV low - break recommended';addAIMessage('Biometric fusion detected cognitive overload. I have switched to easier material. A short break will reset your focus.');}
+  else                    {sN='Fatigue Detected';sD='HRV dropping + low face focus. Rest to restore performance.';bM=5;bR='HRV drop + fatigue - rest now';addAIMessage('Fusion analysis: HRV has dropped and facial focus is low - signs of cognitive fatigue. 5 min break saves 30 min of low-quality study.');}
+  document.getElementById('fusionStateName').textContent=sN; document.getElementById('fusionStateName').style.color=rc;
+  document.getElementById('fusionStateDesc').textContent=sD;
+  if(!breakInterval||bM<=10){
+    breakSeconds=bM*60; clearInterval(breakInterval);
+    breakInterval=setInterval(()=>{
+      breakSeconds=Math.max(0,breakSeconds-1);
+      const m=Math.floor(breakSeconds/60),s=breakSeconds%60;
+      document.getElementById('breakTimer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      if(breakSeconds===0){clearInterval(breakInterval);showAlert('Break Time!','&#x23F0;',bR+'. A 5-min break now boosts retention!');}
+    },1000);
+  }
+  document.getElementById('breakTitle').textContent='Next Break in';
+  document.getElementById('breakReason').textContent=bR;
+  document.getElementById('breakTimer').style.color=rc;
+  document.getElementById('breakTimer').style.borderColor=rc;
+  const icons=['&#x23F0;','&#x26A0;&#xFE0F;','&#x1F6D1;'];
+  document.getElementById('breakIcon').textContent=score>=70?''+String.fromCodePoint(0x23F0):score>=45?''+String.fromCodePoint(0x26A0):String.fromCodePoint(0x1F6D1);
+}
+function setFsig(id,val,pct,color){
+  document.getElementById('fsig-'+id).textContent=val;
+  document.getElementById('fsig-'+id).style.color=color;
+  document.getElementById('fsig-'+id+'-bar').style.width=pct+'%';
+  document.getElementById('fsig-'+id+'-bar').style.background=color;
+}
+
+function drawHRWave() {
+  const c = rppgCanvas;
+  const ctx = rppgCtx;
+  if (!c || !ctx) return;
+  c.width = c.offsetWidth || 220;
+  const w = c.width, h = 48;
+  ctx.clearRect(0, 0, w, h);
+
+  const displayBuf = rppgBuffer.slice(-w);
+  if (displayBuf.length < 2) return;
+
+  const min = Math.min(...displayBuf);
+  const max = Math.max(...displayBuf);
+  const range = max - min || 1;
+
+  ctx.beginPath();
+  ctx.strokeStyle = currentBPM > 100 ? 'rgba(200,75,49,0.8)' : 'rgba(58,125,94,0.8)';
+  ctx.lineWidth = 1.5;
+
+  displayBuf.forEach((v, i) => {
+    const x = (i / (displayBuf.length - 1)) * w;
+    const y = h - ((v - min) / range) * (h - 8) - 4;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Glow fill
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  ctx.fillStyle = currentBPM > 100 ? 'rgba(200,75,49,0.06)' : 'rgba(58,125,94,0.06)';
+  ctx.fill();
+}
+
+// Simulated HR for when camera not available
+function startSimulatedHR() {
+  updateSensor('hr', 'warning', 'Simulated');
+  updateBadge('hr-badge', true);
+  document.getElementById('hrIndicator').classList.add('beating');
+  rppgCanvas = document.getElementById('hrWaveCanvas');
+  rppgCtx = rppgCanvas.getContext('2d');
+  let t = 0, simBPM = 72;
+  setInterval(() => {
+    t += 0.1;
+    // Simulate a realistic PPG-like waveform
+    const sample = Math.sin(t * 1.2) * 0.6 + Math.sin(t * 2.4) * 0.2 + (Math.random() - 0.5) * 0.1;
+    rppgBuffer.push(sample);
+    if (rppgBuffer.length > 220) rppgBuffer.shift();
+    drawHRWave();
+    if (rppgBuffer.length > 60 && Math.random() < 0.05) {
+      simBPM = 65 + Math.floor(Math.random() * 30);
+      updateHRDisplay(simBPM);
+    }
+  }, 33);
+}
+
+async function startMicrophone() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+  }
+  micActive = true;
+  updateSensor('mic', 'active', 'Ready');
+  updateBadge('mic-badge', true);
+}
+
+function startEmotionDetection() {
+  let idx = 0;
+  emotionInterval = setInterval(() => {
+    const em = emotions[idx % emotions.length];
+    updateEmotion(em); idx++;
+    if (Math.random() < 0.2) {
+      updateEmotion(emotions[1]);
+      addAIMessage('😕 Confusion detected! Let me try a different angle: think of DNA base pairs like puzzle pieces — A-T has 2 locking tabs, G-C has 3. The shape literally determines the bond count!');
+    }
+    updateSensor('gaze', Math.random() < 0.15 ? 'warning' : 'active', Math.random() < 0.15 ? 'Drifting' : 'On screen');
+  }, 8000);
+}
+
+// === REAL GAZE TRACKING: mouse position + page visibility + window focus ===
+let _gazeMouseX = window.innerWidth / 2, _gazeMouseY = window.innerHeight / 2;
+let _gazePageVisible = true, _gazeWinFocused = true, _gazeDistractedSince = null;
+
+document.addEventListener("mousemove", function(e) {
+  _gazeMouseX = e.clientX; _gazeMouseY = e.clientY;
+  const dot = document.getElementById("gazeDot");
+  if (dot && gazeActive) { dot.style.left = _gazeMouseX + "px"; dot.style.top = _gazeMouseY + "px"; }
+});
+document.addEventListener("visibilitychange", function() {
+  _gazePageVisible = !document.hidden;
+  const dot = document.getElementById("gazeDot");
+  if (dot) dot.style.opacity = _gazePageVisible ? "1" : "0.15";
+});
+window.addEventListener("blur",         function() { _gazeWinFocused = false; });
+window.addEventListener("focus",        function() { _gazeWinFocused = true; _gazeDistractedSince = null; });
+document.addEventListener("mouseleave", function() { _gazeWinFocused = false; });
+document.addEventListener("mouseenter", function() { _gazeWinFocused = true; _gazeDistractedSince = null; });
+
+function startGazeTracking() {
+  gazeActive = true;
+  updateSensor("gaze", "active", "Tracking");
+  updateBadge("gaze-badge", true);
+  const dot = document.getElementById("gazeDot");
+  if (dot) { dot.style.display = "block"; dot.style.transition = "left 0.08s, top 0.08s"; }
+
+  gazeInterval = setInterval(() => {
+    const inX = _gazeMouseX > window.innerWidth * 0.10 && _gazeMouseX < window.innerWidth * 0.90;
+    const inY = _gazeMouseY > 96 && _gazeMouseY < window.innerHeight - 20;
+    const onScreen = _gazePageVisible && _gazeWinFocused && inX && inY;
+
+    focusLevel = onScreen ? Math.min(100, focusLevel + 2.5) : Math.max(0, focusLevel - 5);
+    fusionEyeScore = focusLevel;
+
+    const ff = document.getElementById("focusFill");
+    if (ff) {
+      ff.style.width = focusLevel + "%";
+      ff.style.background = focusLevel > 60 ? "var(--green)" : focusLevel > 30 ? "var(--gold)" : "var(--accent)";
+    }
+    const fv = document.getElementById("focusVal");
+    if (fv) fv.textContent = Math.round(focusLevel) + "%";
+
+    if (currentBPM > 0) updateBiometricFusion(currentBPM, currentHRV, currentBPM < 76 ? "rest" : currentBPM < 96 ? "focus" : "stress");
+
+    const reason = !_gazePageVisible ? "Tab switched away"
+                 : !_gazeWinFocused  ? "Window lost focus"
+                 :                     "Mouse left content area";
+    if (!onScreen) {
+      if (!_gazeDistractedSince) _gazeDistractedSince = Date.now();
+      if (Date.now() - _gazeDistractedSince > 5000) {
+        showAlert("Attention Check", "", "AI detected: " + reason + " for over 5 seconds. Try switching to the practice quiz.");
+        _gazeDistractedSince = null;
+      }
+    } else {
+      _gazeDistractedSince = null;
+      clearTimeout(distractionTimer);
+    }
+  }, 500);
+}
+
+
+function finalizeLaunch() {
+  const btn = document.querySelector('.ss-btn');
+  btn.textContent = '✅ AI Sensing System Active';
+  btn.style.background = 'var(--green)';
+  addAIMessage('🎉 AI Sensing System activated! Camera, microphone, and eye tracking are all live. I\'ll adapt your lesson in real time based on your focus and emotion state.');
+}
+
+function updateEmotion(em) {
+  document.getElementById('emotionFace').textContent = em.face;
+  document.getElementById('emotionName').textContent = em.name;
+  document.getElementById('emotionDesc').textContent = em.desc;
+  document.getElementById('bar-focused').style.width = em.focused + '%';
+  document.getElementById('bar-confused').style.width = em.confused + '%';
+  document.getElementById('bar-tired').style.width = em.tired + '%';
+  document.getElementById('val-emotion').textContent = em.name;
+  document.getElementById('camStatusText').textContent = em.face + ' ' + em.name;
+  const dot = document.getElementById('dot-emotion');
+  dot.className = 'sensor-dot';
+  dot.classList.add(em.name === 'Focused' || em.name === 'Deep Focus' ? 'active' : em.name === 'Confused' ? 'warning' : 'error');
+  fusionFaceScore = em.focused;
+  if (currentBPM > 0) updateBiometricFusion(currentBPM, currentHRV, currentBPM<76?'rest':currentBPM<96?'focus':'stress');
+  if (em.name === 'Tired') showAlert('Break Reminder', '😴', 'Fatigue detected - facial cues and HRV both confirm rest is needed. 5 minutes now improves retention significantly!');
+}
+
+function updateSensor(id, state, text) {
+  const dot = document.getElementById('dot-' + id);
+  const val = document.getElementById('val-' + id);
+  dot.className = 'sensor-dot';
+  if (state) dot.classList.add(state);
+  if (val) val.textContent = text;
+}
+
+function updateBadge(id, on) {
+  const el = document.getElementById(id);
+  el.textContent = on ? 'Active' : 'Off';
+  el.className = 'ss-badge ' + (on ? 'badge-on' : 'badge-off');
+}
+
+function showAlert(title, icon, desc) {
+  document.getElementById('alertTitle').textContent = title;
+  document.getElementById('alertIcon').textContent = icon;
+  document.getElementById('alertDesc').textContent = desc;
+  document.getElementById('alertOverlay').classList.add('show');
+}
+function dismissAlert() {
+  document.getElementById('alertOverlay').classList.remove('show');
+  addAIMessage('👏 Welcome back! Let\'s pick up where we left off. Which part would you like to revisit?');
+}
+
+// ===== VOICE QUIZ =====
+function toggleVoice() { isRecording ? stopVoice() : startVoice(); }
+
+function startVoice() {
+  isRecording = true;
+  document.getElementById('voiceBtn').textContent = '⏹';
+  document.getElementById('voiceBtn').classList.add('recording');
+  document.getElementById('voiceArea').classList.add('listening');
+  document.getElementById('voiceHint').textContent = 'Listening... answer the question out loud';
+  document.getElementById('transcript').textContent = '';
+  startWaveform();
+  if (recognition) {
+    recognition.onresult = e => { document.getElementById('transcript').textContent = Array.from(e.results).map(r => r[0].transcript).join(''); };
+    recognition.onend = () => { if (isRecording) gradeAnswer(); };
+    recognition.start();
+    setTimeout(() => { if (isRecording) recognition.stop(); }, 10000);
+  } else {
+    setTimeout(() => {
+      document.getElementById('transcript').textContent = 'A-T has two hydrogen bonds and G-C has three. The difference is due to their molecular structure and the number of possible bonding sites.';
+      stopVoice();
+    }, 3500);
+  }
+}
+
+function stopVoice() {
+  isRecording = false;
+  document.getElementById('voiceBtn').textContent = '🎤';
+  document.getElementById('voiceBtn').classList.remove('recording');
+  document.getElementById('voiceArea').classList.remove('listening');
+  stopWaveform();
+  gradeAnswer();
+}
+
+function gradeAnswer() {
+  const text = document.getElementById('transcript').textContent.toLowerCase();
+  const result = document.getElementById('voiceResult');
+  result.style.display = 'block';
+  if ((text.includes('two') || text.includes('2')) && (text.includes('three') || text.includes('3'))) {
+    result.className = 'voice-result correct';
+    result.innerHTML = '✅ <strong>Excellent!</strong> You correctly identified A-T = 2 hydrogen bonds and G-C = 3. Your verbal explanation has been recorded. Score: ⭐⭐⭐';
+    addAIMessage('🎉 Perfect voice answer! You clearly articulated both bond counts. This has been logged in your progress report under "Voice Quiz Performance".');
+  } else if (text.length > 5) {
+    result.className = 'voice-result partial';
+    result.innerHTML = '💛 <strong>Partially correct</strong> — your answer: "' + document.getElementById('transcript').textContent + '"<br>Tip: Be specific about the numbers — A-T = 2 bonds, G-C = 3 bonds.';
+    addAIMessage('Good attempt! Just remember the key numbers: A-T forms 2 hydrogen bonds, G-C forms 3. Try again?');
+  } else {
+    result.className = 'voice-result partial';
+    result.innerHTML = '💛 No complete answer detected. Please try speaking more clearly or click the mic again.';
+  }
+  document.getElementById('voiceHint').textContent = 'Click the mic to try again';
+}
+
+function startWaveform() {
+  const wf = document.getElementById('waveform');
+  wf.innerHTML = '';
+  for (let i = 0; i < 16; i++) {
+    const b = document.createElement('div');
+    b.className = 'wave-bar'; b.style.height = '4px'; wf.appendChild(b);
+  }
+  waveInterval = setInterval(() => {
+    wf.querySelectorAll('.wave-bar').forEach(b => {
+      b.style.height = (4 + Math.random() * 26) + 'px';
+      b.style.opacity = 0.4 + Math.random() * 0.6;
+    });
+  }, 100);
+}
+
+function stopWaveform() {
+  clearInterval(waveInterval);
+  document.getElementById('waveform').querySelectorAll('.wave-bar').forEach(b => b.style.height = '4px');
+}
+
+function addAIMessage(text) {
+  const msgs = document.getElementById('aiMessages');
+  if (!msgs) return;
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + (now.getHours() < 12 ? ' AM' : ' PM');
+  const div = document.createElement('div');
+  div.className = 'msg msg-ai';
+  div.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">${time}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+</script>
+</body>
+</html>
