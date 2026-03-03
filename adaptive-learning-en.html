@@ -152,6 +152,24 @@
   .ss-btn { margin-top: 20px; width: 100%; padding: 12px; border-radius: 12px; background: var(--accent2); color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
   .ss-btn:hover { background: #3a8aaa; transform: translateY(-1px); }
 
+  /* Heart rate panel */
+  .hr-panel { padding: 12px 16px; border-top: 1px solid var(--border); background: white; }
+  .hr-title { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .hr-display { display: flex; align-items: center; gap: 14px; }
+  .hr-bpm { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500; line-height: 1; }
+  .hr-unit { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .hr-state { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .hr-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .hr-wave { width: 100%; height: 48px; margin-top: 10px; overflow: hidden; position: relative; }
+  .hr-wave canvas { width: 100%; height: 48px; }
+  .hr-status-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .hr-indicator { width: 8px; height: 8px; border-radius: 50%; background: #ddd; flex-shrink: 0; }
+  .hr-indicator.beating { animation: heartBeat 0.8s infinite; background: var(--accent); }
+  @keyframes heartBeat { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.6} }
+  .hr-collecting { font-size: 11px; color: var(--muted); }
+  .hr-progress { flex: 1; height: 3px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+  .hr-progress-fill { height: 100%; border-radius: 100px; background: var(--accent); transition: width 0.3s; }
+
   /* Emotion panel */
   .emotion-panel { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
   .emotion-title { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
@@ -640,6 +658,11 @@
     <span class="sensor-text">Emotion</span>
     <span class="sensor-value" id="val-emotion">—</span>
   </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-hr"></div>
+    <span class="sensor-text">Heart Rate</span>
+    <span class="sensor-value" id="val-hr">—</span>
+  </div>
   <div class="sensor-right">
     <span class="sensor-text">Focus</span>
     <div class="focus-track"><div class="focus-fill" id="focusFill" style="width:0%"></div></div>
@@ -685,6 +708,14 @@
             <div class="ss-sub">Speech recognition + AI grading</div>
           </div>
           <span class="ss-badge badge-off" id="mic-badge">Off</span>
+        </div>
+        <div class="ss-item">
+          <div class="ss-icon">❤️</div>
+          <div>
+            <div class="ss-name">Heart Rate (rPPG)</div>
+            <div class="ss-sub">Detects BPM via facial skin color</div>
+          </div>
+          <span class="ss-badge badge-off" id="hr-badge">Off</span>
         </div>
         <div class="ss-item">
           <div class="ss-icon">👀</div>
@@ -959,6 +990,29 @@
         </div>
       </div>
 
+      <!-- Heart Rate Panel -->
+      <div class="hr-panel">
+        <div class="hr-title">❤️ Heart Rate · rPPG Detection</div>
+        <div class="hr-display">
+          <div>
+            <div class="hr-bpm" id="hrBpm" style="color:var(--accent)">--</div>
+            <div class="hr-unit">BPM</div>
+          </div>
+          <div style="flex:1">
+            <div class="hr-state" id="hrState">Initializing...</div>
+            <div class="hr-desc" id="hrDesc">Activate camera to begin heart rate detection</div>
+          </div>
+        </div>
+        <div class="hr-wave"><canvas id="hrWaveCanvas" height="48"></canvas></div>
+        <div class="hr-status-row">
+          <div class="hr-indicator" id="hrIndicator"></div>
+          <span class="hr-collecting" id="hrCollecting">Camera required</span>
+          <div class="hr-progress" id="hrProgressWrap" style="display:none">
+            <div class="hr-progress-fill" id="hrProgressFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="ai-messages" id="aiMessages">
         <div class="msg msg-ai">
           <div class="msg-bubble">Hey Alex! Today we're tackling DNA structure. Based on your history, you made errors on hydrogen bond counts last time — I'll make sure we nail that concept today. 💪</div>
@@ -1198,24 +1252,22 @@ async function startAllSensors() {
     camActive = true;
     document.getElementById('camFeedWrap').classList.add('show');
     const canvas = document.getElementById('camCanvas');
-    // Ensure canvas has real drawing size (not only CSS size)
-    canvas.width = 180;
-    canvas.height = 130;
     const ctx = canvas.getContext('2d');
     function drawCam() {
       if (!camActive) return;
-      ctx.drawImage(video, 0, 0, 180, 130);
+      ctx.drawImage(video, 0, 0, 176, 126);
       ctx.strokeStyle = 'rgba(58,125,94,0.85)';
       ctx.lineWidth = 2;
-      ctx.strokeRect(55, 20, 70, 80);
+      ctx.strokeRect(48, 14, 80, 96);
       ctx.fillStyle = 'rgba(58,125,94,0.85)';
       ctx.font = '9px monospace';
-      ctx.fillText('FACE TRACKING', 60, 16);
+      ctx.fillText('FACE DETECTED', 52, 11);
       requestAnimationFrame(drawCam);
     }
     drawCam();
     updateSensor('cam', 'active', 'Active');
     updateBadge('cam-badge', true);
+    startRPPG(video);
     await startMicrophone();
     startEmotionDetection();
     startGazeTracking();
@@ -1243,10 +1295,200 @@ function startSimulationMode() {
     requestAnimationFrame(drawSim);
   }
   drawSim();
+  startSimulatedHR();
   startEmotionDetection();
   startGazeTracking();
   finalizeLaunch();
   addAIMessage('Running in Simulation Mode (browser permissions not granted). All AI sensing features will use demo data. For the full experience, grant camera & mic access.');
+}
+
+// ===== rPPG HEART RATE DETECTION =====
+const RPPG_SAMPLE_RATE = 30;
+const RPPG_WINDOW = 300; // 10 seconds of samples
+let rppgBuffer = [];
+let rppgCanvas, rppgCtx, rppgOffscreen, rppgOffCtx;
+let hrHistory = [];
+let rppgFrameCount = 0;
+let currentBPM = 0;
+
+function startRPPG(videoEl) {
+  updateSensor('hr', 'warning', 'Calibrating...');
+  updateBadge('hr-badge', true);
+  document.getElementById('hrProgressWrap').style.display = 'flex';
+  document.getElementById('hrIndicator').classList.add('beating');
+
+  rppgCanvas = document.getElementById('hrWaveCanvas');
+  rppgCtx = rppgCanvas.getContext('2d');
+  rppgCanvas.width = rppgCanvas.offsetWidth || 220;
+
+  // Offscreen canvas to sample face region
+  rppgOffscreen = document.createElement('canvas');
+  rppgOffscreen.width = 64; rppgOffscreen.height = 64;
+  rppgOffCtx = rppgOffscreen.getContext('2d');
+
+  function sampleFrame() {
+    if (!camActive) return;
+    // Sample center-face region (64x64 from center of video)
+    rppgOffCtx.drawImage(videoEl, 80, 40, 160, 160, 0, 0, 64, 64);
+    const imgData = rppgOffCtx.getImageData(0, 0, 64, 64).data;
+
+    // Extract mean green channel (most sensitive to blood volume changes)
+    let gSum = 0, rSum = 0, bSum = 0, count = 0;
+    for (let i = 0; i < imgData.length; i += 4) {
+      rSum += imgData[i];
+      gSum += imgData[i+1];
+      bSum += imgData[i+2];
+      count++;
+    }
+    // Normalized green minus chrominance (reduces motion artifacts)
+    const gNorm = gSum / count;
+    const rNorm = rSum / count;
+    const chrominance = gNorm - 0.5 * rNorm;
+    rppgBuffer.push(chrominance);
+    if (rppgBuffer.length > RPPG_WINDOW) rppgBuffer.shift();
+
+    rppgFrameCount++;
+    const progress = Math.min(100, (rppgBuffer.length / RPPG_WINDOW) * 100);
+    document.getElementById('hrProgressFill').style.width = progress + '%';
+
+    // Draw waveform
+    drawHRWave();
+
+    // Calculate BPM every 30 frames once we have enough data
+    if (rppgBuffer.length >= RPPG_WINDOW && rppgFrameCount % 30 === 0) {
+      const bpm = calculateBPM(rppgBuffer);
+      if (bpm > 0) updateHRDisplay(bpm);
+    } else if (rppgBuffer.length < RPPG_WINDOW) {
+      document.getElementById('hrCollecting').textContent =
+        `Collecting signal... ${Math.round(progress)}%`;
+    }
+
+    requestAnimationFrame(sampleFrame);
+  }
+  sampleFrame();
+}
+
+function calculateBPM(signal) {
+  const n = signal.length;
+  // Detrend (remove DC offset)
+  const mean = signal.reduce((a,b) => a+b, 0) / n;
+  const detrended = signal.map(v => v - mean);
+
+  // Apply Hanning window to reduce spectral leakage
+  const windowed = detrended.map((v, i) => v * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (n - 1))));
+
+  // FFT (DFT for simplicity — sufficient for HR frequency range)
+  const freqResolution = RPPG_SAMPLE_RATE / n;
+  let maxPower = 0, peakFreq = 0;
+
+  // Search in 0.7–3.0 Hz = 42–180 BPM
+  const minBin = Math.floor(0.7 / freqResolution);
+  const maxBin = Math.ceil(3.0 / freqResolution);
+
+  for (let k = minBin; k <= maxBin; k++) {
+    let re = 0, im = 0;
+    for (let t = 0; t < n; t++) {
+      const angle = -2 * Math.PI * k * t / n;
+      re += windowed[t] * Math.cos(angle);
+      im += windowed[t] * Math.sin(angle);
+    }
+    const power = re * re + im * im;
+    if (power > maxPower) { maxPower = power; peakFreq = k * freqResolution; }
+  }
+
+  const bpm = Math.round(peakFreq * 60);
+  // Sanity check: only accept physiologically plausible values
+  return (bpm >= 45 && bpm <= 160) ? bpm : 0;
+}
+
+function updateHRDisplay(bpm) {
+  currentBPM = bpm;
+  hrHistory.push(bpm);
+  if (hrHistory.length > 10) hrHistory.shift();
+
+  // Smooth with rolling average
+  const smoothed = Math.round(hrHistory.reduce((a,b) => a+b, 0) / hrHistory.length);
+
+  document.getElementById('hrBpm').textContent = smoothed;
+  document.getElementById('hrProgressWrap').style.display = 'none';
+  document.getElementById('hrCollecting').textContent = 'Live measurement';
+
+  let state, desc, color;
+  if (smoothed < 60) { state = 'Resting'; desc = 'Very calm — ideal for deep reading'; color = 'var(--accent2)'; }
+  else if (smoothed < 75) { state = 'Relaxed Focus'; desc = 'Optimal learning state'; color = 'var(--green)'; }
+  else if (smoothed < 90) { state = 'Engaged'; desc = 'Good concentration level'; color = 'var(--gold)'; }
+  else if (smoothed < 105) { state = 'Elevated'; desc = 'May indicate cognitive load or stress'; color = 'var(--gold)'; }
+  else { state = 'High Stress'; desc = 'AI suggests taking a breath — try paced breathing'; color = 'var(--accent)'; }
+
+  document.getElementById('hrState').textContent = state;
+  document.getElementById('hrState').style.color = color;
+  document.getElementById('hrDesc').textContent = desc;
+  document.getElementById('hrBpm').style.color = color;
+  document.getElementById('hrIndicator').classList.add('beating');
+  document.getElementById('hrIndicator').style.background = color;
+  // Set beat animation speed to match HR
+  document.getElementById('hrIndicator').style.animationDuration = (60 / smoothed) + 's';
+
+  updateSensor('hr', 'active', smoothed + ' BPM');
+
+  // AI responds to HR changes
+  if (smoothed > 100 && hrHistory.length > 3) {
+    addAIMessage(`❤️ Your heart rate is elevated (${smoothed} BPM). This can happen during challenging material. Try taking 3 slow breaths — it genuinely helps with retention.`);
+  }
+}
+
+function drawHRWave() {
+  const c = rppgCanvas;
+  const ctx = rppgCtx;
+  if (!c || !ctx) return;
+  c.width = c.offsetWidth || 220;
+  const w = c.width, h = 48;
+  ctx.clearRect(0, 0, w, h);
+
+  const displayBuf = rppgBuffer.slice(-w);
+  if (displayBuf.length < 2) return;
+
+  const min = Math.min(...displayBuf);
+  const max = Math.max(...displayBuf);
+  const range = max - min || 1;
+
+  ctx.beginPath();
+  ctx.strokeStyle = currentBPM > 100 ? 'rgba(200,75,49,0.8)' : 'rgba(58,125,94,0.8)';
+  ctx.lineWidth = 1.5;
+
+  displayBuf.forEach((v, i) => {
+    const x = (i / (displayBuf.length - 1)) * w;
+    const y = h - ((v - min) / range) * (h - 8) - 4;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Glow fill
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  ctx.fillStyle = currentBPM > 100 ? 'rgba(200,75,49,0.06)' : 'rgba(58,125,94,0.06)';
+  ctx.fill();
+}
+
+// Simulated HR for when camera not available
+function startSimulatedHR() {
+  updateSensor('hr', 'warning', 'Simulated');
+  updateBadge('hr-badge', true);
+  document.getElementById('hrIndicator').classList.add('beating');
+  rppgCanvas = document.getElementById('hrWaveCanvas');
+  rppgCtx = rppgCanvas.getContext('2d');
+  let t = 0, simBPM = 72;
+  setInterval(() => {
+    t += 0.1;
+    // Simulate a realistic PPG-like waveform
+    const sample = Math.sin(t * 1.2) * 0.6 + Math.sin(t * 2.4) * 0.2 + (Math.random() - 0.5) * 0.1;
+    rppgBuffer.push(sample);
+    if (rppgBuffer.length > 220) rppgBuffer.shift();
+    drawHRWave();
+    if (rppgBuffer.length > 60 && Math.random() < 0.05) {
+      simBPM = 65 + Math.floor(Math.random() * 30);
+      updateHRDisplay(simBPM);
+    }
+  }, 33);
 }
 
 async function startMicrophone() {
@@ -1301,15 +1543,11 @@ function startGazeTracking() {
 }
 
 function finalizeLaunch() {
-  const btn = document.querySelector('.ss-btn') || document.querySelector('.ss-start-btn');
-  if (btn) {
-    btn.textContent = '✅ AI Sensing System Active';
-    if (btn) btn.style.background = 'var(--green)';
-  }
-  addAIMessage('🎉 AI Sensing System activated! Camera, microphone, and eye tracking are all live. I\'ll adapt your lesson in real time.');
-  addAIMessage('Tip: Try looking away for 5+ seconds to see the distraction alert.');
+  const btn = document.querySelector('.ss-btn');
+  btn.textContent = '✅ AI Sensing System Active';
+  btn.style.background = 'var(--green)';
+  addAIMessage('🎉 AI Sensing System activated! Camera, microphone, and eye tracking are all live. I\'ll adapt your lesson in real time based on your focus and emotion state.');
 }
-
 
 function updateEmotion(em) {
   document.getElementById('emotionFace').textContent = em.face;
@@ -1319,7 +1557,7 @@ function updateEmotion(em) {
   document.getElementById('bar-confused').style.width = em.confused + '%';
   document.getElementById('bar-tired').style.width = em.tired + '%';
   document.getElementById('val-emotion').textContent = em.name;
-  ((document.getElementById('camStatusText') || document.getElementById('camEmotionText')) || {textContent:''}).textContent = em.face + ' ' + em.name;
+  document.getElementById('camStatusText').textContent = em.face + ' ' + em.name;
   const dot = document.getElementById('dot-emotion');
   dot.className = 'sensor-dot';
   dot.classList.add(em.name === 'Focused' || em.name === 'Deep Focus' ? 'active' : em.name === 'Confused' ? 'warning' : 'error');

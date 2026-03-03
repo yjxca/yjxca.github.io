@@ -319,6 +319,24 @@
   .sug-chip:hover { border-color:var(--accent2); color:var(--accent2); }
 
   /* Emotion indicator in panel */
+  /* Heart rate panel */
+  .hr-panel { padding: 12px 16px; border-top: 1px solid var(--border); background: white; }
+  .hr-title { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .hr-display { display: flex; align-items: center; gap: 14px; }
+  .hr-bpm { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500; line-height: 1; }
+  .hr-unit { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .hr-state { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .hr-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .hr-wave { width: 100%; height: 48px; margin-top: 10px; overflow: hidden; }
+  .hr-wave canvas { width: 100%; height: 48px; }
+  .hr-status-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .hr-indicator { width: 8px; height: 8px; border-radius: 50%; background: #ddd; flex-shrink: 0; }
+  .hr-indicator.beating { animation: heartBeat 0.8s infinite; background: var(--accent); }
+  @keyframes heartBeat { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.6} }
+  .hr-collecting { font-size: 11px; color: var(--muted); }
+  .hr-progress { flex: 1; height: 3px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+  .hr-progress-fill { height: 100%; border-radius: 100px; background: var(--accent); transition: width 0.3s; }
+
   .emotion-panel {
     padding:12px 16px; border-top:1px solid var(--border);
     background:var(--surface);
@@ -487,6 +505,11 @@
     <span class="sensor-text">当前情绪</span>
     <span class="sensor-value" id="val-emotion">—</span>
   </div>
+  <div class="sensor-item">
+    <div class="sensor-dot" id="dot-hr"></div>
+    <span class="sensor-text">心率</span>
+    <span class="sensor-value" id="val-hr">—</span>
+  </div>
   <div class="sensor-bar-right">
     <span class="sensor-text">专注度</span>
     <div class="focus-meter">
@@ -544,6 +567,14 @@
             <div class="ss-status" id="gaze-status-text">检测是否专注于屏幕</div>
           </div>
           <span class="ss-badge badge-off" id="gaze-badge">未开启</span>
+        </div>
+        <div class="ss-item">
+          <div class="ss-icon">❤️</div>
+          <div class="ss-info">
+            <div class="ss-name">心率检测（rPPG）</div>
+            <div class="ss-status" id="hr-status-text">通过摄像头分析面部血流变化</div>
+          </div>
+          <span class="ss-badge badge-off" id="hr-badge">未开启</span>
         </div>
       </div>
       <button class="ss-start-btn" onclick="startAllSensors()">🚀 启动 AI 感知系统</button>
@@ -739,6 +770,29 @@
           <div class="emotion-row">
             <div class="emotion-label">疲劳</div>
             <div class="emotion-track"><div class="emotion-fill" id="bar-tired" style="width:0%;background:var(--accent)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 心率检测面板 -->
+      <div class="hr-panel">
+        <div class="hr-title">❤️ 心率检测 · rPPG 远程脉搏波</div>
+        <div class="hr-display">
+          <div>
+            <div class="hr-bpm" id="hrBpm" style="color:var(--accent)">--</div>
+            <div class="hr-unit">BPM</div>
+          </div>
+          <div style="flex:1">
+            <div class="hr-state" id="hrState">初始化中...</div>
+            <div class="hr-desc" id="hrDesc">启动摄像头后开始检测心率</div>
+          </div>
+        </div>
+        <div class="hr-wave"><canvas id="hrWaveCanvas" height="48"></canvas></div>
+        <div class="hr-status-row">
+          <div class="hr-indicator" id="hrIndicator"></div>
+          <span class="hr-collecting" id="hrCollecting">需要摄像头权限</span>
+          <div class="hr-progress" id="hrProgressWrap" style="display:none">
+            <div class="hr-progress-fill" id="hrProgressFill" style="width:0%"></div>
           </div>
         </div>
       </div>
@@ -958,20 +1012,16 @@ const emotions = [
 
 async function startAllSensors() {
   try {
-    // Camera
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     const video = document.getElementById('videoEl');
     video.srcObject = stream;
     camActive = true;
     document.getElementById('camFeedWrap').classList.add('show');
-
-    // Draw camera to canvas
     const canvas = document.getElementById('camCanvas');
     const ctx = canvas.getContext('2d');
     function drawCam() {
       if (camActive) {
         ctx.drawImage(video, 0, 0, 180, 130);
-        // Draw face detection overlay
         ctx.strokeStyle = 'rgba(58,125,94,0.8)';
         ctx.lineWidth = 2;
         ctx.strokeRect(55, 20, 70, 80);
@@ -982,27 +1032,16 @@ async function startAllSensors() {
       }
     }
     drawCam();
-
     updateSensor('cam', 'active', '已开启');
     updateBadge('cam-badge', true);
-
-    // Simulate emotion detection
+    startRPPG(video);
     startEmotionDetection();
-
-    // Microphone
     await startMicrophone();
-
-    // Gaze tracking simulation
     startGazeTracking();
-
-    // Update home card
     document.querySelector('.ss-start-btn').textContent = '✅ AI 感知系统运行中';
     document.querySelector('.ss-start-btn').style.background = 'var(--green)';
-
-    addAIMessage('🎉 AI 感知系统已启动！摄像头、麦克风和眼神追踪均已开启。我现在可以实时监测你的学习状态了！');
-
+    addAIMessage('🎉 AI 感知系统已启动！摄像头、麦克风、眼神追踪和心率检测均已开启。我现在可以实时监测你的学习状态了！');
   } catch(e) {
-    // Fallback to simulation mode
     startSimulationMode();
   }
 }
@@ -1016,38 +1055,165 @@ function startSimulationMode() {
   updateBadge('mic-badge', true);
   updateBadge('gaze-badge', true);
   document.getElementById('camFeedWrap').classList.add('show');
-
   const canvas = document.getElementById('camCanvas');
   const ctx = canvas.getContext('2d');
   function drawSim() {
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0,0,180,130);
-    // Animated face placeholder
+    ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0,0,180,130);
     const t = Date.now() / 1000;
     ctx.fillStyle = 'rgba(42,107,138,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(90, 65, 40, 50, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(58,125,94,0.8)';
-    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(90, 65, 40, 50, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(58,125,94,0.8)'; ctx.lineWidth = 2;
     ctx.strokeRect(50, 15, 80, 100);
-    ctx.fillStyle = 'rgba(58,125,94,0.9)';
-    ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(58,125,94,0.9)'; ctx.font = '10px monospace';
     ctx.fillText('FACE DETECTED', 52, 12);
-    // Blinking eye indicators
-    if (Math.sin(t * 3) > 0.8) {
-      ctx.fillStyle = 'rgba(212,168,67,0.8)';
-      ctx.fillText('BLINK', 68, 130);
-    }
+    if (Math.sin(t * 3) > 0.8) { ctx.fillStyle = 'rgba(212,168,67,0.8)'; ctx.fillText('BLINK', 68, 130); }
     if (camActive) requestAnimationFrame(drawSim);
   }
   drawSim();
-
+  startSimulatedHR();
   startEmotionDetection();
   startGazeTracking();
   document.querySelector('.ss-start-btn').textContent = '✅ 模拟模式运行中';
   document.querySelector('.ss-start-btn').style.background = 'var(--green)';
-  addAIMessage('已进入模拟模式（浏览器权限未授予）。所有 AI 感知功能将以演示数据运行，完整体验请授予摄像头和麦克风权限。');
+  addAIMessage('已进入模拟模式（浏览器权限未授予）。所有 AI 感知功能（含心率检测）将以演示数据运行，完整体验请授予摄像头权限。');
+}
+
+// ===== rPPG 心率检测 =====
+const RPPG_SAMPLE_RATE = 30;
+const RPPG_WINDOW = 300;
+let rppgBuffer = [], hrHistory = [], rppgFrameCount = 0, currentBPM = 0;
+let rppgCanvas, rppgCtx, rppgOffscreen, rppgOffCtx;
+
+function startRPPG(videoEl) {
+  updateSensor('hr', 'warning', '校准中...');
+  updateBadge('hr-badge', true);
+  document.getElementById('hrProgressWrap').style.display = 'flex';
+  document.getElementById('hrIndicator').classList.add('beating');
+  rppgCanvas = document.getElementById('hrWaveCanvas');
+  rppgCtx = rppgCanvas.getContext('2d');
+  rppgCanvas.width = rppgCanvas.offsetWidth || 220;
+  rppgOffscreen = document.createElement('canvas');
+  rppgOffscreen.width = 64; rppgOffscreen.height = 64;
+  rppgOffCtx = rppgOffscreen.getContext('2d');
+
+  function sampleFrame() {
+    if (!camActive) return;
+    rppgOffCtx.drawImage(videoEl, 80, 40, 160, 160, 0, 0, 64, 64);
+    const imgData = rppgOffCtx.getImageData(0, 0, 64, 64).data;
+    let gSum = 0, rSum = 0, count = 0;
+    for (let i = 0; i < imgData.length; i += 4) {
+      rSum += imgData[i]; gSum += imgData[i+1]; count++;
+    }
+    const chrominance = gSum/count - 0.5 * rSum/count;
+    rppgBuffer.push(chrominance);
+    if (rppgBuffer.length > RPPG_WINDOW) rppgBuffer.shift();
+    rppgFrameCount++;
+    const progress = Math.min(100, (rppgBuffer.length / RPPG_WINDOW) * 100);
+    document.getElementById('hrProgressFill').style.width = progress + '%';
+    drawHRWave();
+    if (rppgBuffer.length >= RPPG_WINDOW && rppgFrameCount % 30 === 0) {
+      const bpm = calculateBPM(rppgBuffer);
+      if (bpm > 0) updateHRDisplay(bpm);
+    } else if (rppgBuffer.length < RPPG_WINDOW) {
+      document.getElementById('hrCollecting').textContent = `信号采集中... ${Math.round(progress)}%`;
+    }
+    requestAnimationFrame(sampleFrame);
+  }
+  sampleFrame();
+}
+
+function calculateBPM(signal) {
+  const n = signal.length;
+  const mean = signal.reduce((a,b) => a+b, 0) / n;
+  const detrended = signal.map(v => v - mean);
+  const windowed = detrended.map((v, i) => v * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (n - 1))));
+  const freqResolution = RPPG_SAMPLE_RATE / n;
+  let maxPower = 0, peakFreq = 0;
+  const minBin = Math.floor(0.7 / freqResolution);
+  const maxBin = Math.ceil(3.0 / freqResolution);
+  for (let k = minBin; k <= maxBin; k++) {
+    let re = 0, im = 0;
+    for (let t = 0; t < n; t++) {
+      const angle = -2 * Math.PI * k * t / n;
+      re += windowed[t] * Math.cos(angle);
+      im += windowed[t] * Math.sin(angle);
+    }
+    const power = re * re + im * im;
+    if (power > maxPower) { maxPower = power; peakFreq = k * freqResolution; }
+  }
+  const bpm = Math.round(peakFreq * 60);
+  return (bpm >= 45 && bpm <= 160) ? bpm : 0;
+}
+
+function updateHRDisplay(bpm) {
+  currentBPM = bpm;
+  hrHistory.push(bpm);
+  if (hrHistory.length > 10) hrHistory.shift();
+  const smoothed = Math.round(hrHistory.reduce((a,b) => a+b, 0) / hrHistory.length);
+  document.getElementById('hrBpm').textContent = smoothed;
+  document.getElementById('hrProgressWrap').style.display = 'none';
+  document.getElementById('hrCollecting').textContent = '实时测量中';
+  let state, desc, color;
+  if (smoothed < 60)       { state = '安静休息'; desc = '状态非常平静，适合深度阅读'; color = 'var(--accent2)'; }
+  else if (smoothed < 75)  { state = '放松专注'; desc = '最佳学习状态 ✓'; color = 'var(--green)'; }
+  else if (smoothed < 90)  { state = '积极投入'; desc = '专注度良好，思维活跃'; color = 'var(--gold)'; }
+  else if (smoothed < 105) { state = '心率偏高'; desc = '可能存在认知压力，注意休息'; color = 'var(--gold)'; }
+  else                     { state = '压力较大'; desc = 'AI 建议：深呼吸 3 次，有助于放松'; color = 'var(--accent)'; }
+  document.getElementById('hrState').textContent = state;
+  document.getElementById('hrState').style.color = color;
+  document.getElementById('hrDesc').textContent = desc;
+  document.getElementById('hrBpm').style.color = color;
+  document.getElementById('hrIndicator').classList.add('beating');
+  document.getElementById('hrIndicator').style.background = color;
+  document.getElementById('hrIndicator').style.animationDuration = (60 / smoothed) + 's';
+  updateSensor('hr', 'active', smoothed + ' BPM');
+  if (smoothed > 100 && hrHistory.length > 3) {
+    addAIMessage(`❤️ 检测到你的心率偏高（${smoothed} BPM）。遇到难题时会这样，试着深吸一口气再继续，这样更有助于记忆。`);
+  }
+}
+
+function drawHRWave() {
+  const c = rppgCanvas;
+  const ctx = rppgCtx;
+  if (!c || !ctx) return;
+  c.width = c.offsetWidth || 220;
+  const w = c.width, h = 48;
+  ctx.clearRect(0, 0, w, h);
+  const buf = rppgBuffer.slice(-w);
+  if (buf.length < 2) return;
+  const min = Math.min(...buf), max = Math.max(...buf), range = max - min || 1;
+  ctx.beginPath();
+  ctx.strokeStyle = currentBPM > 100 ? 'rgba(200,75,49,0.8)' : 'rgba(58,125,94,0.8)';
+  ctx.lineWidth = 1.5;
+  buf.forEach((v, i) => {
+    const x = (i / (buf.length - 1)) * w;
+    const y = h - ((v - min) / range) * (h - 8) - 4;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  ctx.fillStyle = currentBPM > 100 ? 'rgba(200,75,49,0.06)' : 'rgba(58,125,94,0.06)';
+  ctx.fill();
+}
+
+function startSimulatedHR() {
+  updateSensor('hr', 'warning', '模拟中');
+  updateBadge('hr-badge', true);
+  document.getElementById('hrIndicator').classList.add('beating');
+  rppgCanvas = document.getElementById('hrWaveCanvas');
+  rppgCtx = rppgCanvas.getContext('2d');
+  let t = 0, simBPM = 72;
+  setInterval(() => {
+    t += 0.1;
+    const sample = Math.sin(t * 1.2) * 0.6 + Math.sin(t * 2.4) * 0.2 + (Math.random() - 0.5) * 0.1;
+    rppgBuffer.push(sample);
+    if (rppgBuffer.length > 220) rppgBuffer.shift();
+    drawHRWave();
+    if (rppgBuffer.length > 60 && Math.random() < 0.05) {
+      simBPM = 65 + Math.floor(Math.random() * 30);
+      updateHRDisplay(simBPM);
+    }
+  }, 33);
 }
 
 async function startMicrophone() {
