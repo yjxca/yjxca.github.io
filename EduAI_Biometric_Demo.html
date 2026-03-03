@@ -60,7 +60,7 @@
 
   /* ===== NAV ===== */
   nav {
-    position: fixed; top: 36px; left: 0; right: 0; z-index: 100;
+    position: fixed; top: 76px; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 40px;
     height: 60px;
@@ -96,7 +96,7 @@
 
   /* ===== SENSOR BAR ===== */
   .sensor-bar {
-    position: fixed; top: 96px; left: 0; right: 0; z-index: 99;
+    position: fixed; top: 136px; left: 0; right: 0; z-index: 99;
     background: var(--ink); padding: 7px 40px;
     display: flex; align-items: center; gap: 24px;
   }
@@ -249,7 +249,7 @@
   .seg-distracted { background: rgba(200,75,49,0.35); }
 
   /* ===== PAGE SYSTEM ===== */
-  .page { display: none; padding-top: 128px; min-height: 100vh; }
+  .page { display: none; padding-top: 168px; min-height: 100vh; }
   .page.active { display: block; animation: fadeIn 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -609,6 +609,43 @@
   }
   .footer-credit a { color: var(--accent2); text-decoration: none; }
   .footer-credit a:hover { text-decoration: underline; }
+
+  /* ===== TECH MODULE BANNER ===== */
+  .tech-module-bar {
+    position: fixed;
+    top: 42px; left: 0; right: 0;
+    z-index: 195;
+    background: linear-gradient(90deg, #0d1a2e 0%, #1a0d2e 100%);
+    border-bottom: 1px solid rgba(106,79,160,0.4);
+    padding: 7px 40px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    overflow: hidden;
+  }
+  .tech-module-bar::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(106,79,160,0.04) 60px, rgba(106,79,160,0.04) 61px);
+    pointer-events: none;
+  }
+  .tmb-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.35); text-transform: uppercase; flex-shrink: 0;
+  }
+  .tmb-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+  .tmb-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tmb-chip {
+    padding: 2px 9px; border-radius: 100px; font-size: 10px; font-weight: 600;
+    border: 1px solid; white-space: nowrap;
+  }
+  .tmb-chip.purple { color: #b794f4; border-color: rgba(183,148,244,0.35); background: rgba(183,148,244,0.08); }
+  .tmb-chip.red    { color: #fc8181; border-color: rgba(252,129,129,0.35); background: rgba(252,129,129,0.08); }
+  .tmb-chip.blue   { color: #63b3ed; border-color: rgba(99,179,237,0.35);  background: rgba(99,179,237,0.08); }
+  .tmb-chip.green  { color: #68d391; border-color: rgba(104,211,145,0.35); background: rgba(104,211,145,0.08); }
+  .tmb-chip.gold   { color: #e6c84a; border-color: rgba(230,200,74,0.35);  background: rgba(230,200,74,0.08); }
+  .tmb-note { margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.3); flex-shrink: 0; font-style: italic; }
+
 </style>
 </head>
 <body>
@@ -621,6 +658,22 @@
   <div class="cam-footer"><div class="cam-status-text" id="camStatusText">Initializing...</div></div>
 </div>
 <div id="gazeDot"></div>
+
+<!-- TECHNICAL MODULE IDENTIFIER BAR -->
+<div class="tech-module-bar">
+  <span class="tmb-label">Technical Module</span>
+  <div class="tmb-divider"></div>
+  <div class="tmb-chips">
+    <span class="tmb-chip red">&#x2764; rPPG Heart Rate</span>
+    <span class="tmb-chip purple">&#x1F4CA; HRV Analysis</span>
+    <span class="tmb-chip blue">&#x1F441; Eye Tracking</span>
+    <span class="tmb-chip green">&#x1F9E0; Facial Expression AI</span>
+    <span class="tmb-chip gold">&#x1F500; Biometric Fusion Score</span>
+    <span class="tmb-chip purple">&#x23F0; Smart Break Timer</span>
+  </div>
+  <span class="tmb-note">All sensing runs client-side &middot; No data transmitted</span>
+</div>
+
 
 <!-- ALERT OVERLAY -->
 <div class="alert-overlay" id="alertOverlay">
@@ -635,8 +688,9 @@
 <!-- PORTFOLIO BANNER -->
 <div class="portfolio-banner">
   <div class="banner-left">
-    <span class="banner-tag">PORTFOLIO PROJECT</span>
-    <span class="banner-desc">Multimodal AI Adaptive Learning Platform — UI/UX Demo by Jiax Yang</span>
+    <span class="banner-tag" style="background:var(--purple,#6a4fa0);">TECHNICAL MODULE</span>
+    <span class="banner-tag" style="background:var(--accent);">PORTFOLIO PROJECT</span>
+    <span class="banner-desc">Biometric Sensing Engine — rPPG &middot; HRV &middot; Eye Tracking &middot; Multimodal Fusion · by Jiax Yang</span>
   </div>
   <div class="banner-links">
     <a href="https://yjxca.github.io" target="_blank" class="banner-link">
