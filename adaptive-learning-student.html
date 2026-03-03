@@ -372,7 +372,11 @@
   .cam-dot { width:5px; height:5px; background:var(--accent); border-radius:50%; animation:sensorPulse 1.5s infinite; }
   .cam-label { font-size:10px; color:rgba(255,255,255,0.6); }
   #camCanvas { width:180px; height:130px; background:#111; display:block; }
-  video#videoEl { display:none; }
+  video#videoEl { 
+    position: fixed; bottom: 0; right: 0;
+    width: 1px; height: 1px; opacity: 0.01;
+    pointer-events: none; z-index: -1;
+  }
   .cam-overlay { padding:6px 10px; background:var(--ink); }
   .cam-emotion-text { font-size:11px; color:rgba(255,255,255,0.7); }
 
@@ -1020,7 +1024,7 @@ async function startAllSensors() {
     const canvas = document.getElementById('camCanvas');
     const ctx = canvas.getContext('2d');
     function drawCam() {
-      if (camActive) {
+      if (camActive && video.readyState >= 2) {
         ctx.drawImage(video, 0, 0, 180, 130);
         ctx.strokeStyle = 'rgba(58,125,94,0.8)';
         ctx.lineWidth = 2;
@@ -1028,8 +1032,8 @@ async function startAllSensors() {
         ctx.fillStyle = 'rgba(58,125,94,0.8)';
         ctx.font = '10px Sora';
         ctx.fillText('面部检测中', 60, 16);
-        requestAnimationFrame(drawCam);
       }
+      if (camActive) requestAnimationFrame(drawCam);
     }
     drawCam();
     updateSensor('cam', 'active', '已开启');
@@ -1098,7 +1102,12 @@ function startRPPG(videoEl) {
 
   function sampleFrame() {
     if (!camActive) return;
-    rppgOffCtx.drawImage(videoEl, 80, 40, 160, 160, 0, 0, 64, 64);
+    // Use actual video dimensions, sample center face region
+    const vw = videoEl.videoWidth || 640;
+    const vh = videoEl.videoHeight || 480;
+    const faceX = vw * 0.25, faceY = vh * 0.1;
+    const faceW = vw * 0.5, faceH = vh * 0.6;
+    rppgOffCtx.drawImage(videoEl, faceX, faceY, faceW, faceH, 0, 0, 64, 64);
     const imgData = rppgOffCtx.getImageData(0, 0, 64, 64).data;
     let gSum = 0, rSum = 0, count = 0;
     for (let i = 0; i < imgData.length; i += 4) {

@@ -132,7 +132,11 @@
   .cam-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: sPulse 1.5s infinite; }
   .cam-lbl { font-size: 10px; color: rgba(255,255,255,0.5); }
   #camCanvas { width: 176px; height: 126px; background: #111; display: block; }
-  video#videoEl { display: none; }
+  video#videoEl { 
+    position: fixed; bottom: 0; right: 0;
+    width: 1px; height: 1px; opacity: 0.01;
+    pointer-events: none; z-index: -1;
+  }
   .cam-footer { padding: 6px 10px; background: var(--ink); }
   .cam-status-text { font-size: 11px; color: rgba(255,255,255,0.6); }
   #gazeDot { position: fixed; width: 12px; height: 12px; border-radius: 50%; background: rgba(200,75,49,0.5); border: 2px solid var(--accent); pointer-events: none; z-index: 1000; display: none; transform: translate(-50%,-50%); transition: left 0.06s, top 0.06s; }
@@ -1329,7 +1333,12 @@ function startRPPG(videoEl) {
   function sampleFrame() {
     if (!camActive) return;
     // Sample center-face region (64x64 from center of video)
-    rppgOffCtx.drawImage(videoEl, 80, 40, 160, 160, 0, 0, 64, 64);
+    // Use actual video dimensions, sample center face region
+    const vw = videoEl.videoWidth || 640;
+    const vh = videoEl.videoHeight || 480;
+    const faceX = vw * 0.25, faceY = vh * 0.1;
+    const faceW = vw * 0.5, faceH = vh * 0.6;
+    rppgOffCtx.drawImage(videoEl, faceX, faceY, faceW, faceH, 0, 0, 64, 64);
     const imgData = rppgOffCtx.getImageData(0, 0, 64, 64).data;
 
     // Extract mean green channel (most sensitive to blood volume changes)
